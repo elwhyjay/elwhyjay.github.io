@@ -2,10 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Yongjun&#39;s blog</title>
-    <link>http://localhost:55523/posts/</link>
+    <link>https://elwhyjay.github.io/posts/</link>
     <description>Recent content in Posts on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <atom:link href="http://localhost:55523/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate></lastBuildDate>
+    <atom:link href="https://elwhyjay.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
