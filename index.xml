@@ -2,25 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Yongjun&#39;s blog</title>
-    <link>http://localhost:55596/</link>
+    <link>https://elwhyjay.github.io/</link>
     <description>Recent content on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 24 Sep 2024 22:28:28 +0900</lastBuildDate>
-    <atom:link href="http://localhost:55596/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Hello_world</title>
-      <link>http://localhost:55596/post/hello_world/</link>
-      <pubDate>Tue, 24 Sep 2024 22:28:28 +0900</pubDate>
-      <guid>http://localhost:55596/post/hello_world/</guid>
-      <description>&lt;h1 id=&#34;this-is-first-blog-post&#34;&gt;This is first blog post&lt;/h1&gt;</description>
-    </item>
-    <item>
-      <title>Test Tex</title>
-      <link>http://localhost:55596/post/test-tex/</link>
-      <pubDate>Fri, 26 Aug 2022 22:28:10 +0800</pubDate>
-      <guid>http://localhost:55596/post/test-tex/</guid>
-      <description>&lt;p&gt;Inline math: &lt;span&gt;&#xA;\(\varphi\)&#xA;&lt;/span&gt;&#xA;&lt;/p&gt;&#xA;&lt;p&gt;Displayed math:&#xA;&lt;span&gt;&#xA;$$\begin{aligned}&#xA;\varphi &amp;amp;\Rightarrow \psi \\&#xA;\varnothing &amp;amp;\rightarrow A&#xA;\end{aligned}$$&#xA;&lt;/span&gt;&#xA;&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;R_{\mu \nu} - {1 \over 2}g_{\mu \nu},R + g_{\mu \nu} \Lambda&#xA;= {8 \pi G \over c^4} T_{\mu \nu}&#xA;$$&lt;/p&gt;&#xA;&lt;p&gt;The equation $$(x_i \cdot x_j)^2$$ is called kernel function and is often written as $$k(x_i, x_j)$$.&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;\arg\max_\alpha \sum_j \alpha_j - \frac{1}{2} \sum_{j,k} \alpha_j, \alpha_k y_j y_k (x_j \cdot x_k)&#xA;$$&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;f(X) = \frac{1}{(2\pi)^{\frac{n}{2} |\Sigma|^{\frac{1}{2}}}} e^{ - \frac{1}{2} (X - \mu)^T \Sigma^{-1} (X - \mu)}&#xA;$$&lt;/p&gt;</description>
-    </item>
+    <lastBuildDate></lastBuildDate>
+    <atom:link href="https://elwhyjay.github.io/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
