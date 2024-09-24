@@ -2,38 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:58240/tags/machine-learning/</loc>
+    <loc>http://localhost:58521/tags/machine-learning/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/tags/nlp/</loc>
+    <loc>http://localhost:58521/tags/nlp/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/post/</loc>
+    <loc>http://localhost:58521/post/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/post/sts-project-%ED%9A%8C%EA%B3%A0/</loc>
+    <loc>http://localhost:58521/reminds/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/tags/</loc>
+    <loc>http://localhost:58521/post/sts-project-%ED%9A%8C%EA%B3%A0/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/tags/algorithm/</loc>
+    <loc>http://localhost:58521/tags/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:58521/reminds/%ED%9A%8C%EA%B3%A0/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:58521/tags/algorithm/</loc>
     <lastmod>2024-09-24T23:58:27+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/post/hungarian-algorithm/</loc>
+    <loc>http://localhost:58521/post/hungarian-algorithm/</loc>
     <lastmod>2024-09-24T23:58:27+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/tags/optimization/</loc>
+    <loc>http://localhost:58521/tags/optimization/</loc>
     <lastmod>2024-09-24T23:58:27+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/post/hello_world/</loc>
+    <loc>http://localhost:58521/post/hello_blog/</loc>
     <lastmod>2024-09-24T22:28:28+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/</loc>
+    <loc>http://localhost:58521/</loc>
     <lastmod>2022-08-25T21:30:04+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:58240/categories/</loc>
-  </url><url>
-    <loc>http://localhost:58240/reminds/</loc>
+    <loc>http://localhost:58521/categories/</loc>
   </url>
 </urlset>
