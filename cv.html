@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이름 - CV</title>
+    <title>이용준 - CV</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -66,13 +66,38 @@
             border-radius: 15px;
             font-size: 0.9em;
         }
+        .education-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+        .education-details {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .education-period {
+            text-align: right;
+            min-width: 140px;
+            color: #7f8c8d;
+            font-style: italic;
+            white-space: nowrap;
+        }
+        .education-degree {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .education-major {
+            font-size: 0.9em;
+            color: #555;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>이용준</h1>
-            <p> contact: jqueen.astro@gmail.com | 경기도 성남시 분당구</p>
+            <p>contact: jqueen.astro@gmail.com | 경기도 성남시 분당구</p>
         </header>
 
         <section class="section">
@@ -91,17 +116,24 @@
                     <li>주요 업무 및 성과 3</li>
                 </ul>
             </div>
-            <!-- 필요한 만큼 .job 클래스를 복사하여 추가 경력사항을 기재하세요 -->
         </section>
 
         <section class="section">
             <h2>학력</h2>
-            <div class="education">
-                <h3>학위, 전공</h3>
-                <p>공학사, 인하대학교, 2014.03 ~ 2020.02 </p>
-                <p>공학석사, 인하대학교, 2020.03 ~ 2022.08 </p>
+            <div class="education-item">
+                <div class="education-details">
+                    <div class="education-degree">인하대학교 석사</div>
+                    <div class="education-major">전기컴퓨터공학과(컴퓨터공학 전공)</div>
+                </div>
+                <div class="education-period">2020.03 ~ 2022.08</div>
             </div>
-            <!-- 필요한 만큼 .education 클래스를 복사하여 추가 학력사항을 기재하세요 -->
+            <div class="education-item">
+                <div class="education-details">
+                    <div class="education-degree">인하대학교 학사</div>
+                    <div class="education-major">컴퓨터공학과(컴퓨터공학 전공, 수학 복수전공)</div>
+                </div>
+                <div class="education-period">2014.03 ~ 2020.02</div>
+            </div>
         </section>
 
         <section class="section">
@@ -111,7 +143,6 @@
                 <span class="skill">Python</span>
                 <span class="skill">Pytorch</span>
                 <span class="skill">Git</span>
-                <!-- 필요한 만큼 .skill 클래스를 복사하여 추가하세요 -->
             </div>
         </section>
 
@@ -119,7 +150,6 @@
             <h2>수상 및 자격증</h2>
             <div class="awards">
                 <span class="award">정보처리기사</span>
-                <!-- 필요한 만큼 .award 클래스를 복사하여 추가하세요 -->
             </div>
         </section>
     </div>
