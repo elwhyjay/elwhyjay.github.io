@@ -1,55 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이름 - CV</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .job, .education {
+            margin-bottom: 20px;
+        }
+        .job h3, .education h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .job p, .education p {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .skills, .awards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .skill, .award {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>이름</h1>
-        <p>직책 | 이메일 | 전화번호 | 주소</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>이름</h1>
+            <p>직책 | 이메일 | 전화번호 | 주소</p>
+        </header>
 
-    <section class="section">
-        <h2>자기소개</h2>
-        <p>간단한 자기소개를 여기에 작성하세요. 귀하의 주요 기술, 경험, 그리고 커리어 목표에 대해 간략히 설명하세요.</p>
-    </section>
+        <section class="section">
+            <h2>자기소개</h2>
+            <p>간단한 자기소개를 여기에 작성하세요. 귀하의 주요 기술, 경험, 그리고 커리어 목표에 대해 간략히 설명하세요.</p>
+        </section>
 
-    <section class="section">
-        <h2>경력사항</h2>
-        <div class="job">
-            <h3>직책, 회사명</h3>
-            <p>근무 기간 (예: 2020년 3월 - 현재)</p>
-            <ul>
-                <li>주요 업무 및 성과 1</li>
-                <li>주요 업무 및 성과 2</li>
-                <li>주요 업무 및 성과 3</li>
-            </ul>
-        </div>
-        <!-- 필요한 만큼 .job 클래스를 복사하여 추가 경력사항을 기재하세요 -->
-    </section>
+        <section class="section">
+            <h2>경력사항</h2>
+            <div class="job">
+                <h3>직책, 회사명</h3>
+                <p>근무 기간 (예: 2020년 3월 - 현재)</p>
+                <ul>
+                    <li>주요 업무 및 성과 1</li>
+                    <li>주요 업무 및 성과 2</li>
+                    <li>주요 업무 및 성과 3</li>
+                </ul>
+            </div>
+            <!-- 필요한 만큼 .job 클래스를 복사하여 추가 경력사항을 기재하세요 -->
+        </section>
 
-    <section class="section">
-        <h2>학력</h2>
-        <div class="education">
-            <h3>학위, 전공</h3>
-            <p>학교명, 졸업년도</p>
-        </div>
-        <!-- 필요한 만큼 .education 클래스를 복사하여 추가 학력사항을 기재하세요 -->
-    </section>
+        <section class="section">
+            <h2>학력</h2>
+            <div class="education">
+                <h3>학위, 전공</h3>
+                <p>학교명, 졸업년도</p>
+            </div>
+            <!-- 필요한 만큼 .education 클래스를 복사하여 추가 학력사항을 기재하세요 -->
+        </section>
 
-    <section class="section">
-        <h2>기술 및 역량</h2>
-        <ul>
-            <li>기술/역량 1</li>
-            <li>기술/역량 2</li>
-            <li>기술/역량 3</li>
-            <!-- 필요한 만큼 항목을 추가하세요 -->
-        </ul>
-    </section>
+        <section class="section">
+            <h2>기술 및 역량</h2>
+            <div class="skills">
+                <span class="skill">기술/역량 1</span>
+                <span class="skill">기술/역량 2</span>
+                <span class="skill">기술/역량 3</span>
+                <!-- 필요한 만큼 .skill 클래스를 복사하여 추가하세요 -->
+            </div>
+        </section>
 
-    <section class="section">
-        <h2>수상 및 자격증</h2>
-        <ul>
-            <li>수상/자격증 1</li>
-            <li>수상/자격증 2</li>
-            <!-- 필요한 만큼 항목을 추가하세요 -->
-        </ul>
-    </section>
+        <section class="section">
+            <h2>수상 및 자격증</h2>
+            <div class="awards">
+                <span class="award">수상/자격증 1</span>
+                <span class="award">수상/자격증 2</span>
+                <!-- 필요한 만큼 .award 클래스를 복사하여 추가하세요 -->
+            </div>
+        </section>
+    </div>
 </body>
 </html>
