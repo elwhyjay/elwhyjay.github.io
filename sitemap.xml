@@ -2,16 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://elwhyjay.github.io/post/</loc>
+    <loc>http://localhost:62296/tags/machine-learning/</loc>
     <lastmod>2024-09-25T01:15:36+09:00</lastmod>
   </url><url>
-    <loc>https://elwhyjay.github.io/</loc>
+    <loc>http://localhost:62296/tags/nlp/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/post/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/reminds/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/post/sts-project-%ED%9A%8C%EA%B3%A0/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/tags/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/reminds/%ED%9A%8C%EA%B3%A0/</loc>
+    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/tags/algorithm/</loc>
+    <lastmod>2024-09-24T23:58:27+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/post/hungarian-algorithm/</loc>
+    <lastmod>2024-09-24T23:58:27+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/tags/optimization/</loc>
+    <lastmod>2024-09-24T23:58:27+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/post/hello_blog/</loc>
+    <lastmod>2024-09-24T22:28:28+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:62296/</loc>
     <lastmod>2022-08-25T21:30:04+08:00</lastmod>
   </url><url>
-    <loc>https://elwhyjay.github.io/categories/</loc>
-  </url><url>
-    <loc>https://elwhyjay.github.io/reminds/</loc>
-  </url><url>
-    <loc>https://elwhyjay.github.io/tags/</loc>
+    <loc>http://localhost:62296/categories/</loc>
   </url>
 </urlset>
