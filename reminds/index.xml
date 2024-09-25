@@ -2,18 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Reminds on Yongjun&#39;s blog</title>
-    <link>http://localhost:62296/reminds/</link>
+    <link>https://elwhyjay.github.io/reminds/</link>
     <description>Recent content in Reminds on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
-    <lastBuildDate>Wed, 25 Sep 2024 01:15:36 +0900</lastBuildDate>
-    <atom:link href="http://localhost:62296/reminds/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>회고</title>
-      <link>http://localhost:62296/reminds/%ED%9A%8C%EA%B3%A0/</link>
-      <pubDate>Wed, 25 Sep 2024 01:15:36 +0900</pubDate>
-      <guid>http://localhost:62296/reminds/%ED%9A%8C%EA%B3%A0/</guid>
-      <description></description>
-    </item>
+    <atom:link href="https://elwhyjay.github.io/reminds/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
