@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 
+
+
 <html lang="ko-kr"><head>
 	<meta name="generator" content="Hugo 0.134.3"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="utf-8" />
@@ -25,8 +27,15 @@
         <main class="page-content" aria-label="Content">
             <div class="w">
 
-<header>
-    <h1>Yongjun&#39;s blog</h1></header>
+<header style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <div>
+        <h1>Yongjun&#39;s blog</h1></div>
+    <div style="width: 100px; height: 100px; background-color: white; flex-shrink: 0;">
+        
+        <img src="/img/digitamon.gif" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+</header>
+
 
 <ul><li>info</li>
             <ul><li>Developer</li><li><a href="/cv.html">CV</a></li><li><a href="https://github.com/elwhyjay">github repo</a></li><li><a href="https://www.linkedin.com/in/yongjun-lee-47b0201bb/">LinkedIn</a></li><li>recent interest is NLP</li></ul>
@@ -58,6 +67,18 @@
             <ul><li>Working....</li></ul>
 </ul>
 
+
+<style>
+    @media (max-width: 600px) {
+        header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        header > div:last-child {
+            margin-top: 10px;
+        }
+    }
+</style>
 
 
             </div>
