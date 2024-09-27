@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+
+
+<html lang="ko-kr"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="blog도 개설한겸 논문한편을 리뷰해보고자 한다. 정말 오랜만에 작성하는 리뷰이다. 이 논문의 제목은
+Matryoshka Representation Learning 으로 Neurips&#39;22 에 accept된 논문이다.
+학습된 representation (예를 들어 encoder로 embedding된 sentence 등)은 다양한 다운스트림 task에 활용된다. Bert 계열의 encoder의 embedding출력값이 768차원으로 고정되듯 각 다운스트림 task에서 고정된 표현은 부족하거나 과할 수 있다. 이 때 적절한 차원으로의 축소 역시 그 크기를 정하는데 많은 리소스를 사용해야만 한다. 이 논문은 마트료시카 표현 학습 방법(MRL)을 제시함으로써 인코더가 다양한 정보로 표현을 임베딩해 다운스트림 task에 적응하는 방법을 제시한다. MRL은 이를 동해 coarse한 표현부터 fine한 표현까지 학습할 수 있다.">  
+
+  <title>
+    
+      Matryoshka Representation Learning Review
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.7fe5eee7d4627cf9ebca897c1d9ec11225000cc70fc3f266af65448f843077898523946a8aa1504c0866ed66a50768ebfa1c60e76a397833fd7e054db9159ffa.css" integrity="sha512-f&#43;Xu59RifPnryol8HZ7BEiUADMcPw/Jmr2VEj4Qwd4mFI5RqiqFQTAhm7WalB2jr&#43;hxg52o5eDP9fgVNuRWf&#43;g==" />
+   <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+ 
+</head>
+<style>
+        table {
+            border-collapse: collapse;
+            border: 1px solid #ebebeb;
+        }
+        
+        th, td {
+            border: 1px solid #ffffff;
+            padding: 8px;
+        }
+        th {
+            background-color: #2290e5;
+        }
+        
+    </style>
+    <body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2024-09-27 00:00:29 &#43;0900 KST">
+            2024-09-27
+        </time>
+    </p>
+
+    <h1>Matryoshka Representation Learning Review</h1>
+
+    
+
+    <p>blog도 개설한겸 논문한편을 리뷰해보고자 한다. 정말 오랜만에 작성하는 리뷰이다. 이 논문의 제목은
+Matryoshka Representation Learning 으로 Neurips'22 에 accept된 논문이다.</p>
+<p>학습된 representation (예를 들어 encoder로 embedding된 sentence 등)은 다양한 다운스트림 task에 활용된다. Bert 계열의 encoder의 embedding출력값이 768차원으로 고정되듯 각 다운스트림 task에서 고정된 표현은 부족하거나 과할 수 있다. 이 때 적절한 차원으로의 축소 역시 그 크기를 정하는데 많은 리소스를 사용해야만 한다. 이 논문은 마트료시카 표현 학습 방법(MRL)을 제시함으로써 인코더가 다양한 정보로 표현을 임베딩해 다운스트림 task에 적응하는 방법을 제시한다. MRL은 이를 동해 coarse한 표현부터 fine한 표현까지 학습할 수 있다.</p>
+<p><img src="/img/Maytyoshka_img1.png" alt="figure1"><em>Figure 1</em></p>
+<hr>
+<h1 id="reference">Reference</h1>
+<ul>
+<li>Kusupati, Aditya, et al. &ldquo;Matryoshka representation learning.&rdquo; Advances in Neural Information Processing Systems 35 (2022): 30233-30249. <a href="https://arxiv.org/pdf/2205.13147v4">https://arxiv.org/pdf/2205.13147v4</a></li>
+<li><a href="https://github.com/RAIVNLab/MRL">https://github.com/RAIVNLab/MRL</a></li>
+<li><a href="https://huggingface.co/blog/matryoshka">https://huggingface.co/blog/matryoshka</a></li>
+<li>Li, Xianming, et al. &ldquo;2d matryoshka sentence embeddings.&rdquo; arXiv preprint arXiv:2402.14776 (2024).</li>
+<li><a href="https://sbert.net/examples/training/matryoshka/README.html">https://sbert.net/examples/training/matryoshka/README.html</a></li>
+<li><a href="https://velog.io/@hoon_lander/posts">https://velog.io/@hoon_lander/posts</a></li>
+</ul>
+<hr>
+
+</article>
+
+
+    <script src="https://utteranc.es/client.js"
+        repo="elwhyjay/blog-comment"
+        issue-term="title"
+        label="✨💬✨"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+            </div>
+        </main>
+    </body>
+</html>

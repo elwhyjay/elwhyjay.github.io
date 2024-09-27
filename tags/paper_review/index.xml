@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Paper_review on Yongjun&#39;s blog</title>
+    <link>http://localhost:1313/tags/paper_review/</link>
+    <description>Recent content in Paper_review on Yongjun&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>ko-kr</language>
+    <lastBuildDate>Fri, 27 Sep 2024 00:00:29 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/paper_review/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Matryoshka Representation Learning Review</title>
+      <link>http://localhost:1313/post/matryoshka-representation-learning-review/</link>
+      <pubDate>Fri, 27 Sep 2024 00:00:29 +0900</pubDate>
+      <guid>http://localhost:1313/post/matryoshka-representation-learning-review/</guid>
+      <description>&lt;p&gt;blog도 개설한겸 논문한편을 리뷰해보고자 한다. 정말 오랜만에 작성하는 리뷰이다. 이 논문의 제목은&#xA;Matryoshka Representation Learning 으로 Neurips&#39;22 에 accept된 논문이다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;hr&gt;&#xA;&lt;hr&gt;</description>
+    </item>
+  </channel>
+</rss>
