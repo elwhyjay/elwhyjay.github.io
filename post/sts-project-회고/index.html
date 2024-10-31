@@ -100,7 +100,7 @@
 기존에 학습되어있는 모델을 새로운 데이터로 fine-tuning하는것이기 때문에 시도해볼만하다고 생각해서 새로운 손실함수를 설계했다.</p>
 <p>설계한 손실함수는 다음과 같다.</p>
 <p>$$\mathcal{L}_{cor} = 1 - \rho(y, \hat{y})$$</p>
-<p>$$ \rho(y, \hat{y}) = \frac{\sum_{i=1}^{n} (y_i - \bar{y})(\hat{y}<em>i - \bar{\hat{y}})}{\sqrt{\sum{i=1}^{n} (y_i - \bar{y})^2} \sqrt{\sum</em>{i=1}^{n} (\hat{y}_i - \bar{\hat{y}})^2}} $$</p>
+<p>$$\rho(y, \hat{y}) = \frac{\sum_{i=1}^{n} (y_i - \bar{y})(\hat{y}<em>i - \bar{\hat{y}})}{\sqrt{\sum</em>{i=1}^{n} (y_i - \bar{y})^2} \sqrt{\sum_{i=1}^{n} (\hat{y}_i - \bar{\hat{y}})^2}}$$</p>
 <p>즉 상관계수 손실함수는 타겟데이터와 예측데이터의 피어슨 상관계수를 구하고 그 값을 1에서 뺀것으로 정의했다. (손실값을 작게 학습해야함으로)
 그리고 이것만으로는 선형관계 파악에만 학습이 치중될거같다는 가정을하고 $ L_1 $ 손실함수와 가중합을 더해 최종 손실함수를 정의 했다.</p>
 <p>$$ \mathcal{L}_{total} = (1-\alpha)\mathcal{L}_{\text{cor}} + \alpha\mathcal{L}_{MAE} $$</p>
