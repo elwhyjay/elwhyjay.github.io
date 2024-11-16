@@ -83,6 +83,14 @@
             font-style: italic;
             white-space: nowrap;
         }
+        .project-organization {
+            text-align: right;
+            min-width: 140px;
+            font-style: italic;
+            white-space: nowrap;
+            color: #222;
+
+        }
         .education-degree, .project-name {
             font-weight: bold;
             margin-bottom: 3px;
@@ -103,16 +111,27 @@
         <header>
             <h1>이용준</h1>
             <p>contact: jqueen.astro@gmail.com | 경기도 성남시 분당구 <br> 
-                <A href = "https://github.com/elwhyjay">github: github.com/elwhyjay </A>
-                <text> | </text>
-                <A href = "elwhyjay.github.io">blog: elwhyjay.github.io </A>
+                <a href="https://github.com/elwhyjay" style="text-decoration: none; color: inherit;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                    github.com/elwhyjay
+                  </a> |
+                  <a href="https://elwhyjay.github.io" style="text-decoration: none; color: inherit;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    elwhyjay.github.io
+                  </a>
             </p>
             
         </header>
 
         <section class="section">
             <h2>자기소개</h2>
-            <p> 인공지능 개발자입니다.</p>
+            <p> 겸손함이 미덕이라고 생각하는 개발자입니다.</p>
         </section>
         
         <section class="section"></section>
@@ -155,7 +174,9 @@
                     <div class="project-description"> - 항공기 Manual 데이터베이스화</div>
                     <div class="project-tech">사용 기술: Python, PyTorch, Git</div>
                 </div>
-                <div class="project-period">2020.08 - 2022.08</div>
+                <div class="project-period">2020.08 - 2022.08
+                    <div class="project-organization">인하대학교</div>
+                </div>
             </div>
             <div class="project-item">
                 <div class="project-details">
@@ -164,7 +185,9 @@
                     <div class="project-description">- 감정 인식 모델 고도화 </div>
                     <div class="project-tech">사용 기술: Python, PyTorch</div>
                 </div>
-                <div class="project-period">2020.01 - 2022.08</div>
+                <div class="project-period">2020.01 - 2022.08
+                    <div class="project-organization">인하대학교</div>
+                </div>
             </div>
         </section>
 
