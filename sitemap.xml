@@ -20,6 +20,15 @@
     <loc>http://localhost:1313/tags/</loc>
     <lastmod>2024-11-16T22:27:54+09:00</lastmod>
   </url><url>
+    <loc>http://localhost:1313/tags/error/</loc>
+    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/llm/</loc>
+    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/llm_error/</loc>
+    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/post/matryoshka-representation-learning-review/</loc>
     <lastmod>2024-09-27T00:00:29+09:00</lastmod>
   </url><url>

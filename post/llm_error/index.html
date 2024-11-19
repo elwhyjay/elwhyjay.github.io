@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+
+
+<html lang="ko-kr"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="LLM 을 다루다 만나는 error를 모아보겠다
+Error 1. tokenizer template&hellip;.
+ValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating 
+이런 에러는 template이 없을때 발생하는데. 이때는 tokenizer.chat_template을 설정해주면 된다. 주로 mistral,llama2에서 발생한다.
+tokenizer.chat_template = &#34;...&#34;
+더 자세한 chat_template사용방법은 여기를 참고하자.">  
+
+  <title>
+    
+      Llm_error
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.7fe5eee7d4627cf9ebca897c1d9ec11225000cc70fc3f266af65448f843077898523946a8aa1504c0866ed66a50768ebfa1c60e76a397833fd7e054db9159ffa.css" integrity="sha512-f&#43;Xu59RifPnryol8HZ7BEiUADMcPw/Jmr2VEj4Qwd4mFI5RqiqFQTAhm7WalB2jr&#43;hxg52o5eDP9fgVNuRWf&#43;g==" />
+  
+</head>
+<style>
+        table {
+            border-collapse: collapse;
+            border: 1px solid #ebebeb;
+        }
+        
+        th, td {
+            border: 1px solid #ffffff;
+            padding: 8px;
+        }
+        th {
+            background-color: #2290e5;
+        }
+        
+    </style>
+    <body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2024-11-01 19:56:05 &#43;0900 KST">
+            2024-11-01
+        </time>
+    </p>
+
+    <h1>Llm_error</h1>
+
+    
+
+    <p>LLM 을 다루다 만나는 error를 모아보겠다</p>
+<h3 id="error-1-tokenizer-template">Error 1. tokenizer template&hellip;.</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating 
+</span></span></code></pre></div><p>이런 에러는 template이 없을때 발생하는데. 이때는 tokenizer.chat_template을 설정해주면 된다. 주로 mistral,llama2에서 발생한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tokenizer<span style="color:#f92672">.</span>chat_template <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;...&#34;</span>
+</span></span></code></pre></div><p>더 자세한 chat_template사용방법은 <a href="https://huggingface.co/docs/transformers/main/en/chat_templating">여기</a>를 참고하자.</p>
+
+</article>
+
+
+    <script src="https://utteranc.es/client.js"
+        repo="elwhyjay/blog-comment"
+        issue-term="title"
+        label="✨💬✨"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+            </div>
+        </main>
+    </body>
+</html>
