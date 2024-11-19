@@ -1,8 +1,21 @@
 <!DOCTYPE html>
 
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: 1px solid currentColor;
+      border-radius: 8px;
+      z-index: 1000;
+    }
+</style>
 
-
-<html lang="ko-kr"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<html lang="ko-kr"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,7 +50,12 @@
         }
         
     </style>
+    
     <body a="auto">
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="light-icon">🌞</span>
+            <span class="dark-icon" style="display:none">🌙</span>
+        </button>
         <main class="page-content" aria-label="Content">
             <div class="w">
 <a href="/">..</a>
@@ -78,5 +96,34 @@
 
             </div>
         </main>
+        <script>
+            function toggleTheme() {
+              const body = document.querySelector('body');
+              const currentTheme = body.getAttribute('a');
+              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+              
+              body.setAttribute('a', newTheme);
+              localStorage.setItem('theme', newTheme);
+              
+              
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = newTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = newTheme === 'dark' ? 'inline' : 'none';
+            }
+            
+            
+            document.addEventListener('DOMContentLoaded', () => {
+              const savedTheme = localStorage.getItem('theme');
+              if (savedTheme) {
+                document.querySelector('body').setAttribute('a', savedTheme);
+                
+                const lightIcon = document.querySelector('.light-icon');
+                const darkIcon = document.querySelector('.dark-icon');
+                lightIcon.style.display = savedTheme === 'dark' ? 'none' : 'inline';
+                darkIcon.style.display = savedTheme === 'dark' ? 'inline' : 'none';
+              }
+            });
+        </script>
     </body>
 </html>
