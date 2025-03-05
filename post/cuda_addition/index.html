@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: 1px solid ;
+      border-color: black;
+      border-radius: 60%;
+      z-index: 1000;
+    }
+    body[a="dark"] .theme-toggle {
+        border-color: white;
+    }
+</style>
+
+<html lang="ko-kr"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="CUDA로 덧셈하기
+기본적인 함수설명
+
+cudamalloc은 device memory를 할당하는 함수이다.
+cudaMemcpy은 host와 device간의 데이터를 복사하는 함수이다.
+cudaFree는 device memory를 해제하는 함수이다.
+cudaDeviceSynchronize는 device에서 실행중인 모든 kernel이 종료될때까지 기다리는 함수이다.
+
+
+#include &#34;solve.h&#34;
+#include &lt;cuda_runtime.h&gt;
+
+__global__ void vector_add(const float* A, const float* B, float* C, int N) {
+    int idx = threadIdx.x &#43; blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
+    for(int i =idx;i&lt;N;i&#43;=stride) {
+        C[i] = A[i] &#43; B[i];
+    }
+}
+
+void solve(const float* A, const float* B, float* C, int N) {
+    float *d_A, *d_B, *d_C;
+
+    // Allocate device memory
+    cudaMalloc(&amp;d_A, N * sizeof(float));
+    cudaMalloc(&amp;d_B, N * sizeof(float));
+    cudaMalloc(&amp;d_C, N * sizeof(float));
+
+    // Copy input data from host to device
+    cudaMemcpy(d_A, A, N * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, B, N * sizeof(float), cudaMemcpyHostToDevice);
+
+    // Calculate grid and block dimensions
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N &#43; threadsPerBlock - 1) / threadsPerBlock;
+
+    // Launch the kernel
+    vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, d_B, d_C, N);
+    cudaDeviceSynchronize();
+
+    // Copy result back to host
+    cudaMemcpy(C, d_C, N * sizeof(float), cudaMemcpyDeviceToHost);
+
+    // Free device memory
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+}
+">  
+
+  <title>
+    
+      Cuda_addition
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.7fe5eee7d4627cf9ebca897c1d9ec11225000cc70fc3f266af65448f843077898523946a8aa1504c0866ed66a50768ebfa1c60e76a397833fd7e054db9159ffa.css" integrity="sha512-f&#43;Xu59RifPnryol8HZ7BEiUADMcPw/Jmr2VEj4Qwd4mFI5RqiqFQTAhm7WalB2jr&#43;hxg52o5eDP9fgVNuRWf&#43;g==" />
+  
+</head>
+<style>
+        table {
+            border-collapse: collapse;
+            border: 1px solid #ebebeb;
+        }
+        
+        th, td {
+            border: 1px solid #ffffff;
+            padding: 8px;
+        }
+        th {
+            background-color: #2290e5;
+        }
+        
+    </style>
+    
+    <body a="auto">
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="light-icon">🌞</span>
+            <span class="dark-icon" style="display:none">🌙</span>
+        </button>
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2025-03-05 15:22:43 &#43;0900 KST">
+            2025-03-05
+        </time>
+    </p>
+
+    <h1>Cuda_addition</h1>
+
+    
+
+    <h1 id="cuda로-덧셈하기">CUDA로 덧셈하기</h1>
+<h2 id="기본적인-함수설명">기본적인 함수설명</h2>
+<ul>
+<li><code>cudamalloc</code>은 device memory를 할당하는 함수이다.</li>
+<li><code>cudaMemcpy</code>은 host와 device간의 데이터를 복사하는 함수이다.</li>
+<li><code>cudaFree</code>는 device memory를 해제하는 함수이다.</li>
+<li><code>cudaDeviceSynchronize</code>는 device에서 실행중인 모든 kernel이 종료될때까지 기다리는 함수이다.</li>
+</ul>
+<h2 id="heading"></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;solve.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>__global__ <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">vector_add</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> N) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> idx <span style="color:#f92672">=</span> threadIdx.x <span style="color:#f92672">+</span> blockIdx.x <span style="color:#f92672">*</span> blockDim.x;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> stride <span style="color:#f92672">=</span> blockDim.x <span style="color:#f92672">*</span> gridDim.x;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span>idx;i<span style="color:#f92672">&lt;</span>N;i<span style="color:#f92672">+=</span>stride) {
+</span></span><span style="display:flex;"><span>        C[i] <span style="color:#f92672">=</span> A[i] <span style="color:#f92672">+</span> B[i];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">solve</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> N) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>d_A, <span style="color:#f92672">*</span>d_B, <span style="color:#f92672">*</span>d_C;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Allocate device memory
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_B, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_C, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Copy input data from host to device
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMemcpy</span>(d_A, A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyHostToDevice);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMemcpy</span>(d_B, B, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyHostToDevice);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Calculate grid and block dimensions
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> threadsPerBlock <span style="color:#f92672">=</span> <span style="color:#ae81ff">256</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> blocksPerGrid <span style="color:#f92672">=</span> (N <span style="color:#f92672">+</span> threadsPerBlock <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> threadsPerBlock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Launch the kernel
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    vector_add<span style="color:#f92672">&lt;&lt;&lt;</span>blocksPerGrid, threadsPerBlock<span style="color:#f92672">&gt;&gt;&gt;</span>(d_A, d_B, d_C, N);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaDeviceSynchronize</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Copy result back to host
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMemcpy</span>(C, d_C, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyDeviceToHost);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Free device memory
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaFree</span>(d_A);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaFree</span>(d_B);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaFree</span>(d_C);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+</article>
+
+
+    <script src="https://utteranc.es/client.js"
+        repo="elwhyjay/blog-comment"
+        issue-term="title"
+        label="✨💬✨"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+            </div>
+        </main>
+        <script>
+            function toggleTheme() {
+              const body = document.querySelector('body');
+              const currentTheme = body.getAttribute('a');
+              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+              
+              body.setAttribute('a', newTheme);
+              localStorage.setItem('theme', newTheme);
+              
+              
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = newTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = newTheme === 'dark' ? 'inline' : 'none';
+            }
+            
+            
+            document.addEventListener('DOMContentLoaded', () => {
+              const savedTheme = localStorage.getItem('theme');
+              if (savedTheme) {
+                document.querySelector('body').setAttribute('a', savedTheme);
+                
+                const lightIcon = document.querySelector('.light-icon');
+                const darkIcon = document.querySelector('.dark-icon');
+                lightIcon.style.display = savedTheme === 'dark' ? 'none' : 'inline';
+                darkIcon.style.display = savedTheme === 'dark' ? 'inline' : 'none';
+              }
+            });
+        </script>
+    </body>
+</html>
