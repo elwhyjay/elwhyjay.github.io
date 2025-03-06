@@ -23,7 +23,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <meta name="description" content="CUDA로 덧셈하기
+   <meta name="description" content="CUDA 기본연산
 기본적인 함수설명
 
 cudamalloc은 device memory를 할당하는 함수이다.
@@ -31,7 +31,7 @@ cudaMemcpy은 host와 device간의 데이터를 복사하는 함수이다.
 cudaFree는 device memory를 해제하는 함수이다.
 cudaDeviceSynchronize는 device에서 실행중인 모든 kernel이 종료될때까지 기다리는 함수이다.
 
-
+덧셈연산
 #include &#34;solve.h&#34;
 #include &lt;cuda_runtime.h&gt;
 
@@ -75,7 +75,7 @@ void solve(const float* A, const float* B, float* C, int N) {
 
   <title>
     
-      Cuda_addition
+      cuda basic operation
     
   </title>
 
@@ -120,11 +120,11 @@ void solve(const float* A, const float* B, float* C, int N) {
         </time>
     </p>
 
-    <h1>Cuda_addition</h1>
+    <h1>cuda basic operation</h1>
 
     
 
-    <h1 id="cuda로-덧셈하기">CUDA로 덧셈하기</h1>
+    <h1 id="cuda-기본연산">CUDA 기본연산</h1>
 <h2 id="기본적인-함수설명">기본적인 함수설명</h2>
 <ul>
 <li><code>cudamalloc</code>은 device memory를 할당하는 함수이다.</li>
@@ -132,7 +132,7 @@ void solve(const float* A, const float* B, float* C, int N) {
 <li><code>cudaFree</code>는 device memory를 해제하는 함수이다.</li>
 <li><code>cudaDeviceSynchronize</code>는 device에서 실행중인 모든 kernel이 종료될때까지 기다리는 함수이다.</li>
 </ul>
-<h2 id="heading"></h2>
+<h2 id="덧셈연산">덧셈연산</h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;solve.h&#34;</span><span style="color:#75715e">
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
