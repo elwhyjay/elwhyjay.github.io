@@ -2,23 +2,29 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/tags/information-geometry/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/loss-function/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/machine-learning/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/nlp/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/tags/cuda/</loc>
     <lastmod>2025-03-05T15:22:43+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/post/cuda-basic-operation/</loc>
     <lastmod>2025-03-05T15:22:43+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/</loc>
-    <lastmod>2025-03-05T15:22:43+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-03-05T15:22:43+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/machine-learning/</loc>
-    <lastmod>2024-11-16T22:27:54+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/nlp/</loc>
-    <lastmod>2024-11-16T22:27:54+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/paper_review/</loc>
     <lastmod>2024-11-16T22:27:54+09:00</lastmod>

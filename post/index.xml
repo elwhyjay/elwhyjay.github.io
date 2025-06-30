@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
-    <lastBuildDate>Wed, 05 Mar 2025 15:22:43 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 11 Jun 2025 13:41:05 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Loss Function in information geometry</title>
+      <link>http://localhost:1313/post/loss-function/</link>
+      <pubDate>Wed, 11 Jun 2025 13:41:05 +0900</pubDate>
+      <guid>http://localhost:1313/post/loss-function/</guid>
+      <description>&lt;h1 id=&#34;loss-function-in-information-geometry&#34;&gt;Loss Function in information geometry&lt;/h1&gt;&#xA;&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;머신러닝에서 loss function, 즉 손실함수는 모델의 예측값과 실제값 사이의 차이를 측정하는 역할을 한다. 이 함수는 모델의 성능을 평가하고, 최적화 과정에서 모델의 파라미터를 조정하는 데 사용된다. 정보기하학에서는 손실함수를 기하학적 관점에서 분석할 수 있다. 이 글에서는 정보기하학에서 손실함수의 역할과 그 기하학적 해석에 대해 살펴본다.&lt;/p&gt;&#xA;&lt;h2 id=&#34;loss-function-in-information-geometry-1&#34;&gt;Loss Function in Information Geometry&lt;/h2&gt;</description>
+    </item>
     <item>
       <title>cuda basic operation</title>
       <link>http://localhost:1313/post/cuda-basic-operation/</link>
