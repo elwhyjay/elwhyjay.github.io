@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>GPU on Yongjun&#39;s blog</title>
+    <link>http://localhost:1313/tags/gpu/</link>
+    <description>Recent content in GPU on Yongjun&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>ko-kr</language>
+    <lastBuildDate>Wed, 06 Aug 2025 12:22:45 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/gpu/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gpu_architec</title>
+      <link>http://localhost:1313/post/gpu_architec/</link>
+      <pubDate>Wed, 06 Aug 2025 12:22:45 +0900</pubDate>
+      <guid>http://localhost:1313/post/gpu_architec/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;gpu programming을 하기위해서는 gpu architecture에 대한 이해가 필요하다. gpu가 무엇인지는 현재에와서는 모르는 사람이 없을것이다.&#xA;때문에 gpu에 대한 소개는 생략하고 gpu architecture를 곧바로 살펴보자&lt;/p&gt;&#xA;&lt;h2 id=&#34;gpu-hardware-architecture&#34;&gt;GPU Hardware Architecture&lt;/h2&gt;&#xA;&lt;p&gt;gpu architecture는 크게 다음과 같은 요소로 구성된다.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Streaming Multiprocessors (SMs)&lt;/strong&gt;: GPU의 핵심 컴퓨팅 유닛으로, 병렬 처리를 수행한다. 각 SM은 여러 개의 CUDA 코어를 포함하고 있으며, 동시에 여러 스레드를 실행할 수 있다.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;HBM (High Bandwidth Memory)&lt;/strong&gt;: GPU의 글로벌 메모리로, 데이터 전송 속도가 매우 빠르다. HBM은 GPU와 CPU 간의 데이터 전송을 최적화하여 높은 성능을 제공한다. DRAM을 적층해 만든 구조로 CPU에서 DRAM의 역할과 유사하다.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;L2 Cache&lt;/strong&gt;: GPU의 L2 캐시는 데이터 접근 속도를 높이기 위해 사용된다. L2 캐시는 GPU와 HBM 사이의 중간 캐시 역할을 하며, 자주 사용되는 데이터를 저장하여 빠른 접근을 가능하게 한다.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;NVLink&lt;/strong&gt;: 다른 GPU와의 연결을 위한 인터페이스로 , 다중 GPU 시스템에서 높은 대역폭을 제공한다. NVLink는 GPU 간의 데이터 전송 속도를 향상시켜, 병렬 처리 성능을 극대화한다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;streaming-multiprocessors-sms&#34;&gt;Streaming Multiprocessors (SMs)&lt;/h3&gt;&#xA;&lt;p&gt;SMs는 GPU의 핵심 컴퓨팅 유닛으로, 병렬 처리를 수행한다. 각 SM은 다음과 같은 구성 요소로 이루어져 있다:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

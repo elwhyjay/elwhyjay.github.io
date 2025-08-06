@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/tags/cuda/</loc>
+    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/gpu/</loc>
+    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/gpu_architec/</loc>
+    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/</loc>
+    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/tags/information-geometry/</loc>
     <lastmod>2025-06-11T13:41:05+09:00</lastmod>
   </url><url>
@@ -13,15 +28,6 @@
   </url><url>
     <loc>http://localhost:1313/tags/nlp/</loc>
     <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/cuda/</loc>
-    <lastmod>2025-03-05T15:22:43+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/post/cuda-basic-operation/</loc>
     <lastmod>2025-03-05T15:22:43+09:00</lastmod>
