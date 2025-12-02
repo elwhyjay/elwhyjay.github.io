@@ -2,19 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/tags/gpu/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/int8tofloat16/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/optimization/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/quantization/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/flash-attention/</loc>
+    <lastmod>2025-08-07T18:22:50+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/tags/cuda/</loc>
     <lastmod>2025-08-06T12:22:45+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/gpu/</loc>
-    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/post/gpu_architec/</loc>
-    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/</loc>
-    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
     <lastmod>2025-08-06T12:22:45+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/information-geometry/</loc>
@@ -72,9 +84,6 @@
     <lastmod>2020-01-01T23:58:27+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/post/hungarian-algorithm/</loc>
-    <lastmod>2020-01-01T23:58:27+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/optimization/</loc>
     <lastmod>2020-01-01T23:58:27+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
