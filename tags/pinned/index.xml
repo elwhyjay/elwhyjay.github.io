@@ -6,8 +6,15 @@
     <description>Recent content in Pinned on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
-    <lastBuildDate>Fri, 27 Sep 2024 00:00:29 +0900</lastBuildDate>
+    <lastBuildDate>Tue, 02 Dec 2025 17:44:26 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/pinned/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Int4 to FP16 dequantization optimization</title>
+      <link>http://localhost:1313/post/int8tofloat16/</link>
+      <pubDate>Tue, 02 Dec 2025 17:44:26 +0900</pubDate>
+      <guid>http://localhost:1313/post/int8tofloat16/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;Quantization은 현재 LLM 분야에서 중요한 기술로 자리잡았다. 특히 추론을 최적화하는데 있어서 가중치를 int4, int8 등의 저정밀도 정수형으로 양자화하는 기법이 널리 사용되고 있다. 이 기법을 통해 모델의 메모리 사용량을 줄이고, 메모리 대역폭 요구사항을 낮추며, 하드웨어 가속기의 연산 처리량을 극대화할 수 있다. 하지만 양자화 기술은 만능이 아니고 많은 경우에 최적화가 요구될 수 있다.&lt;/p&gt;&#xA;&lt;p&gt;이 글에서는 QServe에서 소개된 &lt;a href=&#34;https://arxiv.org/abs/2211.10017&#34;&gt;Kim et al.&lt;/a&gt; 의 논문에서 제시된 int4 양자화된 KV cache를 FP16 활성화 값으로 역양자화하는 비트 최적화 기법에 대해 살펴본다. 역양자화는 때로 과도한 연산량을 요구할 수 있기 때문에, 이를 효율적으로 처리하는 것이 중요하다. 이 최적화 기법은 computing resource를 절약하는 효과적인 방법중 하나로 이해하고 비슷한시나리오에서 사용가능할것 같다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Matryoshka Representation Learning Review</title>
       <link>http://localhost:1313/post/matryoshka-representation-learning-review/</link>
