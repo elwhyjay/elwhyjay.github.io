@@ -2,90 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/gpu/</loc>
-    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/int8tofloat16/</loc>
-    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/optimization/</loc>
-    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/post/</loc>
     <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/quantization/</loc>
-    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-12-02T17:44:26+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/flash-attention/</loc>
-    <lastmod>2025-08-07T18:22:50+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/cuda/</loc>
-    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/gpu_architec/</loc>
-    <lastmod>2025-08-06T12:22:45+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/information-geometry/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/loss-function/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/machine-learning/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/nlp/</loc>
-    <lastmod>2025-06-11T13:41:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/cuda-basic-operation/</loc>
-    <lastmod>2025-03-05T15:22:43+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/paper_review/</loc>
-    <lastmod>2024-11-16T22:27:54+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/retrieval-papers-summary/</loc>
-    <lastmod>2024-11-16T22:27:54+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/error/</loc>
-    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/llm/</loc>
-    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/llm_error/</loc>
-    <lastmod>2024-11-01T19:56:05+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/matryoshka-representation-learning-review/</loc>
-    <lastmod>2024-09-27T00:00:29+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/pinned/</loc>
-    <lastmod>2024-09-27T00:00:29+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/reminds/</loc>
-    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/sts-project-%ED%9A%8C%EA%B3%A0/</loc>
-    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/reminds/%ED%9A%8C%EA%B3%A0/</loc>
-    <lastmod>2024-09-25T01:15:36+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/hello_blog/</loc>
-    <lastmod>2024-09-24T22:28:28+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/</loc>
     <lastmod>2022-08-25T21:30:04+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/algorithm/</loc>
-    <lastmod>2020-01-01T23:58:27+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/post/hungarian-algorithm/</loc>
-    <lastmod>2020-01-01T23:58:27+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/categories/</loc>
+  </url><url>
+    <loc>http://localhost:1313/reminds/</loc>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
   </url>
 </urlset>
