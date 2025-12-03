@@ -272,17 +272,17 @@ $$\Delta V = 2^{-10} \times 2^{10} = 1$$</li>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">$I4s_TO_F16s_MAGIC_NUM$</td>
+          <td style="text-align: left">$\text{I4s_TO_F16s_MAGIC_NUM}$</td>
           <td style="text-align: left">$\mathbf{0x64006400}$</td>
           <td style="text-align: left">$half2$로 표현된 $\mathbf{{1024, 1024}}$의 비트 패턴 (관찰 2)</td>
       </tr>
       <tr>
-          <td style="text-align: left">$BOTTOM_MASK$</td>
+          <td style="text-align: left">$\text{BOTTOM_MASK}$</td>
           <td style="text-align: left">$\mathbf{0x000f000f}$</td>
           <td style="text-align: left">$Int4$ 요소 중 하위 비트들을 마스킹하여 추출</td>
       </tr>
       <tr>
-          <td style="text-align: left">$TOP_MASK$</td>
+          <td style="text-align: left">$\text{TOP_MASK}$</td>
           <td style="text-align: left">$\mathbf{0x00f000f0}$</td>
           <td style="text-align: left">$Int4$ 요소 중 상위 비트들을 마스킹하여 추출</td>
       </tr>
@@ -290,7 +290,7 @@ $$\Delta V = 2^{-10} \times 2^{10} = 1$$</li>
 </table>
 <h3 id="lop3-명령어-분석">$LOP3$ 명령어 분석</h3>
 <p><code>asm volatile(&quot;lop3.b32&quot; %0, %1, %2, %3, %4;\n&quot;)</code>는 $PTX$의 논리 연산자 $LOP3$를 사용하여 다음 연산을 수행한다. 이는 $AND$, $OR$, $NOT$ 등을 조합하는 고성능 단일 명령어이다.</p>
-<p>$$h[i] = (i4s ; AND ; MASK) ; OR ; \mathbf{0x64006400}$$</p>
+<p>$$h[i] = (i4s\quad AND\quad  MASK)\quad  OR\quad  \mathbf{0x64006400}$$</p>
 <ol>
 <li>
 <p><strong>마스킹 ($AND$)</strong>: 입력 $i4s$에서 해당하는 $Int4$ 요소들의 비트만 추출한다.</p>
@@ -312,17 +312,17 @@ $$\Delta V = 2^{-10} \times 2^{10} = 1$$</li>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">$FP16_TOP_MAGIC_NUM$</td>
+          <td style="text-align: left">$\text{FP16 _ TOP_ MAGIC_ NUM}$</td>
           <td style="text-align: left">$\mathbf{0x64006400}$</td>
           <td style="text-align: left">$half2$로 표현된 $\mathbf{{1024, 1024}}$</td>
       </tr>
       <tr>
-          <td style="text-align: left">$ONE_SIXTEENTH$</td>
+          <td style="text-align: left">$\text{ONE_SIXTEENTH}$</td>
           <td style="text-align: left">$\mathbf{0x2c002c00}$</td>
           <td style="text-align: left">$half2$로 표현된 $\mathbf{{1/16, 1/16}}$</td>
       </tr>
       <tr>
-          <td style="text-align: left">$NEG_64$</td>
+          <td style="text-align: left">$\text{NEG_64}$</td>
           <td style="text-align: left">$\mathbf{0xd400d400}$</td>
           <td style="text-align: left">$half2$로 표현된 $\mathbf{{-64, -64}}$</td>
       </tr>
@@ -341,7 +341,7 @@ $$\Delta V = 2^{-10} \times 2^{10} = 1$$</li>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// Convert elt_01
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">asm</span> <span style="color:#66d9ef">volatile</span>(<span style="color:#e6db74">&#34;sub.f16x2 %0, %1, %2;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;=r&#34;</span>(h[<span style="color:#ae81ff">0</span>]) <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;r&#34;</span>(h[<span style="color:#ae81ff">0</span>]), <span style="color:#e6db74">&#34;r&#34;</span>(FP16_TOP_MAGIC_NUM));
 </span></span></code></pre></div><ul>
-<li>$FP16_TOP_MAGIC_NUM$은 $\mathbf{{1024, 1024}}$이다.</li>
+<li>$\text{FP16_TOP_MAGIC_NUM}$은 $\mathbf{{1024, 1024}}$이다.</li>
 <li>이 연산은 $FP16$ 값에서 $1024$를 뺀다.</li>
 <li>구현에서는 논문의 $Int4$ 최적화 규칙($1032$를 빼야 함)을 직접 따르지 않고, <strong>$1024$만 빼고 있다</strong>. 나머지 $\mathbf{8}$에 대한 처리는 다른 부분(스케일링)에 통합되어 있다.</li>
 </ul>
@@ -349,7 +349,7 @@ $$\Delta V = 2^{-10} \times 2^{10} = 1$$</li>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// Convert elt_23
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">asm</span> <span style="color:#66d9ef">volatile</span>(<span style="color:#e6db74">&#34;fma.rn.f16x2 %0, %1, %2, %3;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;=r&#34;</span>(h[<span style="color:#ae81ff">1</span>]) <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;r&#34;</span>(h[<span style="color:#ae81ff">1</span>]), <span style="color:#e6db74">&#34;r&#34;</span>(ONE_SIXTEENTH), <span style="color:#e6db74">&#34;r&#34;</span>(NEG_64));
 </span></span></code></pre></div><p>$FMA$ 연산은 $A \times B + C$ 형태이다.
-$$result = h[1] \times {1/16, 1/16} + {-64, -64}$$</p>
+$$result = h[1] \times \lbrace 1/16, 1/16 \rbrace + \lbrace -64, -64 \rbrace$$</p>
 <ul>
 <li>$h[1]$ (임시 $FP16$ 값)은 $\mathbf{{e_{2}+1024, e_{3}+1024}}$를 나타낸다.</li>
 <li>$e_i$는 $Int4$ 가중치로, 최종 역양자화는 $W_{dq} = e_i \times S$ (Scale)로 표현된다.</li>
