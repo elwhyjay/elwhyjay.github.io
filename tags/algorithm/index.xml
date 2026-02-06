@@ -2,25 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Algorithm on Yongjun&#39;s blog</title>
-    <link>http://localhost:1313/tags/algorithm/</link>
+    <link>https://elwhyjay.github.io/tags/algorithm/</link>
     <description>Recent content in Algorithm on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
     <lastBuildDate>Sat, 07 Feb 2026 00:35:33 +0900</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/algorithm/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://elwhyjay.github.io/tags/algorithm/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>FFT on GPU</title>
-      <link>http://localhost:1313/post/fft/</link>
+      <link>https://elwhyjay.github.io/post/fft/</link>
       <pubDate>Sat, 07 Feb 2026 00:35:33 +0900</pubDate>
-      <guid>http://localhost:1313/post/fft/</guid>
+      <guid>https://elwhyjay.github.io/post/fft/</guid>
       <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;이 포스트에서 다룰것은 Fast fourier Transform이다. 이 알고리즘에대해서는 PS(Competitve programming) 하는 사람들은 익히 알것이다. 실제로 검색을해보면 알고리즘에 대해서는 상세히 알수가있다. 그렇기때문에 알고리즘을 톺아보기보다 GPU위에서 FFT를 구현하는것에대해 초점을 맞춰 글을 작성할 예정이다.&lt;/p&gt;&#xA;&lt;h1 id=&#34;background&#34;&gt;Background&lt;/h1&gt;&#xA;&lt;h2 id=&#34;fourier-transform&#34;&gt;Fourier Transform&lt;/h2&gt;&#xA;&lt;p&gt;Fourier Transform(푸리에 변환)은 신호를 주파수 성분으로 분해하는 수학적 기법이다. 이는 시간 도메인에서 표현된 신호를 주파수 도메인으로 변환하여, 신호의 주파수 특성을 분석하고 처리하는 데 사용된다. 푸리에 변환은 다양한 분야에서 활용되며, 특히 신호 처리, 이미지 처리, 음성 인식, 통신 시스템 등에서 중요한 역할을 한다. 정의는 이러한데 그렇다면 푸리에 변환은 이런 특정 도메인이 아니면 전혀 쓸모가 없는것일까? 익히 알려져있듯 이러한 도메인이아니라 일반적인 연산 영역에서도 푸리에 변환은 유용하게 사용될 수 있다. 이를 중점으로 살펴보자.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Hungarian Algorithm</title>
-      <link>http://localhost:1313/post/hungarian-algorithm/</link>
-      <pubDate>Wed, 01 Jan 2020 23:58:27 +0900</pubDate>
-      <guid>http://localhost:1313/post/hungarian-algorithm/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://www.acmicpc.net/problem/14216&#34;&gt;https://www.acmicpc.net/problem/14216&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;헝가리안 알고리즘을 직관적으로 이해하기 쉬운문제이다. 헝가리안 알고리즘을 알기위해서는 이분매칭 등 네트워크 플로우와 쌍대성 등 최적화 이론에대해 이해하는것이 좋다고 생각한다(본인이 그렇게 배웠기때문에). 이것들에 대해서도 글을 쓰면 좋겠지만 본인이 게으르기도하고 더 좋은 글들이 지천에 많으니 그것들을 참고하면 될거같아 생략한다. 그렇다면 헝가리안 알고리즘도 마찬기지 아닌가 싶지만 이 문제는 개인적으로 인상깊었던터라 스스로 정리해두고싶은 욕심해 글로남겨둔다.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

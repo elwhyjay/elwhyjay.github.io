@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>AI on Yongjun&#39;s blog</title>
-    <link>http://localhost:1313/tags/ai/</link>
+    <link>https://elwhyjay.github.io/tags/ai/</link>
     <description>Recent content in AI on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
     <lastBuildDate>Sun, 28 Dec 2025 21:59:14 +0900</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/ai/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://elwhyjay.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Data_format</title>
-      <link>http://localhost:1313/post/data_format/</link>
+      <link>https://elwhyjay.github.io/post/data_format/</link>
       <pubDate>Sun, 28 Dec 2025 21:59:14 +0900</pubDate>
-      <guid>http://localhost:1313/post/data_format/</guid>
+      <guid>https://elwhyjay.github.io/post/data_format/</guid>
       <description>&lt;h1 id=&#34;현대-ai-데이터-타입-ml-엔지니어와-cuda-개발자를-위한-기술-심층-분석&#34;&gt;현대 AI 데이터 타입: ML 엔지니어와 CUDA 개발자를 위한 기술 심층 분석&lt;/h1&gt;&#xA;&lt;p&gt;저정밀도 수치 포맷은 효율적인 AI 추론의 핵심이 되었으며, &lt;strong&gt;FP8&lt;/strong&gt;은 Hopper GPU에서 &lt;strong&gt;2배의 처리량 증가&lt;/strong&gt;를 제공하면서 FP16에 가까운 정확도를 유지하고, &lt;strong&gt;INT4 가중치 전용(weight-only) 양자화&lt;/strong&gt;는 70B 파라미터 모델을 단일 48GB GPU에서 실행할 수 있게 해준다. 이 보고서는 15개 이상의 데이터 포맷에 대한 수학적 명세, 4세대 NVIDIA 아키텍처 전반에 걸친 하드웨어별 성능 특성, 그리고 양자화 알고리즘에 대한 정량적 분석을 제공한다. 이는 프로덕션 LLM 시스템을 배포하는 데 필수적인 지식이다.&lt;/p&gt;</description>
     </item>
   </channel>

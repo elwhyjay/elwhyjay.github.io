@@ -2,38 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Machine-Learning on Yongjun&#39;s blog</title>
-    <link>http://localhost:1313/tags/machine-learning/</link>
+    <link>https://elwhyjay.github.io/tags/machine-learning/</link>
     <description>Recent content in Machine-Learning on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
     <lastBuildDate>Wed, 11 Jun 2025 13:41:05 +0900</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://elwhyjay.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Loss Function in information geometry</title>
-      <link>http://localhost:1313/post/loss-function/</link>
+      <link>https://elwhyjay.github.io/post/loss-function/</link>
       <pubDate>Wed, 11 Jun 2025 13:41:05 +0900</pubDate>
-      <guid>http://localhost:1313/post/loss-function/</guid>
+      <guid>https://elwhyjay.github.io/post/loss-function/</guid>
       <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;머신러닝에서 loss function, 즉 손실함수는 모델의 예측값과 실제값 사이의 차이를 측정하는 역할을 한다. 이 함수는 모델의 성능을 평가하고, 최적화 과정에서 모델의 파라미터를 조정하는 데 사용된다. 정보기하학에서는 손실함수를 기하학적 관점에서 분석할 수 있다. 이 글에서는 정보기하학에서 손실함수의 역할과 그 기하학적 해석에 대해 살펴본다.&lt;/p&gt;&#xA;&lt;h2 id=&#34;loss-function-in-information-geometry&#34;&gt;Loss Function in Information Geometry&lt;/h2&gt;</description>
     </item>
     <item>
-      <title>Retrieval Papers Summary</title>
-      <link>http://localhost:1313/post/retrieval-papers-summary/</link>
-      <pubDate>Sat, 16 Nov 2024 22:27:54 +0900</pubDate>
-      <guid>http://localhost:1313/post/retrieval-papers-summary/</guid>
-      <description>&lt;p&gt;ODQA 프로젝트는 상당히 재밌게 마무리한것 같다. 특히 retrieval 파트는 현재 LLM까지도 정말 활발하게 사용되는 기술이라고한다.&#xA;Langchina이나 AutoRAG등 자동화된 rag기술들이 많지만 그래도 retrieval에대한 이해도를 높여두면 많은 도움이 될것같다.&lt;/p&gt;&#xA;&lt;h1 id=&#34;sparse-retrieval&#34;&gt;Sparse Retrieval&lt;/h1&gt;&#xA;&lt;h3 id=&#34;tf-idf&#34;&gt;TF-IDF&lt;/h3&gt;&#xA;&lt;h3 id=&#34;bm25&#34;&gt;BM25&lt;/h3&gt;&#xA;&lt;h1 id=&#34;dense-retrieval&#34;&gt;Dense Retrieval&lt;/h1&gt;&#xA;&lt;h3 id=&#34;encoder-structure&#34;&gt;Encoder structure&lt;/h3&gt;&#xA;&lt;h3 id=&#34;colbert&#34;&gt;ColBert&lt;/h3&gt;&#xA;&lt;h3 id=&#34;in-batch-negative-와-ance&#34;&gt;in-batch negative 와 ANCE&lt;/h3&gt;</description>
-    </item>
-    <item>
       <title>Matryoshka Representation Learning Review</title>
-      <link>http://localhost:1313/post/matryoshka-representation-learning-review/</link>
+      <link>https://elwhyjay.github.io/post/matryoshka-representation-learning-review/</link>
       <pubDate>Fri, 27 Sep 2024 00:00:29 +0900</pubDate>
-      <guid>http://localhost:1313/post/matryoshka-representation-learning-review/</guid>
+      <guid>https://elwhyjay.github.io/post/matryoshka-representation-learning-review/</guid>
       <description>&lt;p&gt;blog도 개설한겸 논문한편을 리뷰해보고자 한다. 정말 오랜만에 작성하는 리뷰이다. 이 논문의 제목은&#xA;Matryoshka Representation Learning 으로 Neurips&#39;22 에 accept된 논문이다.&lt;/p&gt;&#xA;&lt;p&gt;학습된 representation (예를 들어 encoder로 embedding된 sentence 등)은 다양한 다운스트림 task에 활용된다. Bert 계열의 encoder의 embedding출력값이 768차원으로 고정되듯 각 다운스트림 task에서 고정된 표현은 부족하거나 과할 수 있다. 이 때 적절한 차원으로의 축소 역시 그 크기를 정하는데 많은 리소스를 사용해야만 한다. 이 논문은 마트료시카 표현 학습 방법(MRL)을 제시함으로써 인코더가 다양한 정보로 표현을 임베딩해 다운스트림 task에 적응하는 방법을 제시한다. MRL을 통해 학습된 표현은 단일모델로 학습된 동일한 차원의 표현만큼 잘 학습한다.&lt;/p&gt;</description>
     </item>
     <item>
       <title>STS Project 회고</title>
-      <link>http://localhost:1313/post/sts-project-%ED%9A%8C%EA%B3%A0/</link>
+      <link>https://elwhyjay.github.io/post/sts-project-%ED%9A%8C%EA%B3%A0/</link>
       <pubDate>Wed, 25 Sep 2024 01:15:36 +0900</pubDate>
-      <guid>http://localhost:1313/post/sts-project-%ED%9A%8C%EA%B3%A0/</guid>
+      <guid>https://elwhyjay.github.io/post/sts-project-%ED%9A%8C%EA%B3%A0/</guid>
       <description>&lt;h2 id=&#34;프로젝트를-마치며&#34;&gt;프로젝트를 마치며&lt;/h2&gt;&#xA;&lt;p&gt;부스트캠프에서 첫 팀 프로젝트로 캐글형식의 대회를 진행했다. 회고를 쓴 시점에서 최종순위가 나온것은아니지만&#xA;대략적인 얼개는 나온것같다. 결론부터 말하면 중간정도의 성적이다. 애당초 시작할때 높은 순위가 목표도 아니었고&#xA;또 지속적으로 해온 대회라 데이터의 누적으로 순위가 사소한 차이로 갈렸기 때문에 큰 의미는 두지 않아도 될것 같다.&#xA;하지만 그렇다고 아쉬움이 없었던것은 아니다. 추석 연휴가 끼어있어서 상당히 길게 프로젝트를 진행했음에도 미숙하게 한점이&#xA;많은것같다. 이는 대체로 나의 잘못인데 밑에서 자세히 적도록 하겠다.&#xA;대회는 STS(sematical text similarity) 문제로 두 문장의 유사도를 점수로 나타내고 이를 피어슨 상관계수로 평가하는&#xA;형식이었다. 기본적으로 base 코드도 주어지기때문에 큰 틀은 여느 팀이나 비슷했다. 그래서 대회중에 색다른 시도를 몇가지&#xA;해보고자 했는데 그에대해 먼저 적어볼까 한다.&lt;/p&gt;</description>
     </item>
   </channel>

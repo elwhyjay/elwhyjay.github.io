@@ -6,6 +6,98 @@
     <description>Recent content in Tags on Yongjun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
+    <lastBuildDate>Sat, 07 Feb 2026 00:35:33 +0900</lastBuildDate>
     <atom:link href="https://elwhyjay.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Algorithm</title>
+      <link>https://elwhyjay.github.io/tags/algorithm/</link>
+      <pubDate>Sat, 07 Feb 2026 00:35:33 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/algorithm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>FFT</title>
+      <link>https://elwhyjay.github.io/tags/fft/</link>
+      <pubDate>Sat, 07 Feb 2026 00:35:33 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/fft/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>GPU</title>
+      <link>https://elwhyjay.github.io/tags/gpu/</link>
+      <pubDate>Sat, 07 Feb 2026 00:35:33 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/gpu/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>AI</title>
+      <link>https://elwhyjay.github.io/tags/ai/</link>
+      <pubDate>Sun, 28 Dec 2025 21:59:14 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/ai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CUDA</title>
+      <link>https://elwhyjay.github.io/tags/cuda/</link>
+      <pubDate>Sun, 28 Dec 2025 21:59:14 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/cuda/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LLM</title>
+      <link>https://elwhyjay.github.io/tags/llm/</link>
+      <pubDate>Sun, 28 Dec 2025 21:59:14 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Optimization</title>
+      <link>https://elwhyjay.github.io/tags/optimization/</link>
+      <pubDate>Tue, 02 Dec 2025 17:44:26 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/optimization/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Pinned</title>
+      <link>https://elwhyjay.github.io/tags/pinned/</link>
+      <pubDate>Tue, 02 Dec 2025 17:44:26 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/pinned/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Quantization</title>
+      <link>https://elwhyjay.github.io/tags/quantization/</link>
+      <pubDate>Tue, 02 Dec 2025 17:44:26 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/quantization/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Information Geometry</title>
+      <link>https://elwhyjay.github.io/tags/information-geometry/</link>
+      <pubDate>Wed, 11 Jun 2025 13:41:05 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/information-geometry/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Machine-Learning</title>
+      <link>https://elwhyjay.github.io/tags/machine-learning/</link>
+      <pubDate>Wed, 11 Jun 2025 13:41:05 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/machine-learning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NLP</title>
+      <link>https://elwhyjay.github.io/tags/nlp/</link>
+      <pubDate>Wed, 11 Jun 2025 13:41:05 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/nlp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Paper_review</title>
+      <link>https://elwhyjay.github.io/tags/paper_review/</link>
+      <pubDate>Fri, 27 Sep 2024 00:00:29 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/tags/paper_review/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>
