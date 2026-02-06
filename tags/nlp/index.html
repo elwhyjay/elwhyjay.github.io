@@ -55,7 +55,7 @@
   
   
   
-  <link rel="stylesheet" href="/css/main.b27fc5610be205f24ca50ff0ec7c3029a919c277b959db7ed8b6e173d918decfc1435681e9a787476bce9650012878ff0a4ac9f8ac6f8e2ee2716f8eff5cead8.css" integrity="sha512-sn/FYQviBfJMpQ/w7HwwKakZwne5Wdt&#43;2Lbhc9kY3s/BQ1aB6aeHR2vOllABKHj/CkrJ&#43;Kxvji7icW&#43;O/1zq2A==" />
+  <link rel="stylesheet" href="/css/main.52bb1e9d4377eb8c8882cfcd334b1f0806eefe0c6e0074ecfdeb36f05cee36fcbc305e7421bb436a666cf7f14d41d3775bcda923f9dd5c661d39a44533c0e7bc.css" integrity="sha512-UrsenUN364yIgs/NM0sfCAbu/gxuAHTs/es28FzuNvy8MF50IbtDamZs9/FNQdN3W82pI/ndXGYdOaRFM8DnvA==" />
   
 </head>
 <style>
@@ -134,31 +134,41 @@
             </div>
         </main>
         <script>
+            
+            function getEffectiveTheme(theme) {
+              if (theme === 'auto') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+              return theme;
+            }
+
+            function updateIcons(effectiveTheme) {
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = effectiveTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = effectiveTheme === 'dark' ? 'inline' : 'none';
+            }
+
             function toggleTheme() {
               const body = document.querySelector('body');
               const currentTheme = body.getAttribute('a');
-              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-              
+              const effective = getEffectiveTheme(currentTheme);
+              const newTheme = effective === 'dark' ? 'light' : 'dark';
+
               body.setAttribute('a', newTheme);
               localStorage.setItem('theme', newTheme);
-              
-              
-              const lightIcon = document.querySelector('.light-icon');
-              const darkIcon = document.querySelector('.dark-icon');
-              lightIcon.style.display = newTheme === 'dark' ? 'none' : 'inline';
-              darkIcon.style.display = newTheme === 'dark' ? 'inline' : 'none';
+              updateIcons(newTheme);
             }
-            
+
             
             document.addEventListener('DOMContentLoaded', () => {
               const savedTheme = localStorage.getItem('theme');
               if (savedTheme) {
                 document.querySelector('body').setAttribute('a', savedTheme);
+                updateIcons(savedTheme);
+              } else {
                 
-                const lightIcon = document.querySelector('.light-icon');
-                const darkIcon = document.querySelector('.dark-icon');
-                lightIcon.style.display = savedTheme === 'dark' ? 'none' : 'inline';
-                darkIcon.style.display = savedTheme === 'dark' ? 'inline' : 'none';
+                updateIcons(getEffectiveTheme('auto'));
               }
             });
         </script>
