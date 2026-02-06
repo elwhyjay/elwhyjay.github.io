@@ -204,18 +204,29 @@
 (function() {
     var text = "\"Yongjun's blog\"";
     var el = document.getElementById('typed-title');
+    var cursor = document.getElementById('cursor');
     var i = 0;
+
+    function erase() {
+        if (el.textContent.length > 0) {
+            el.textContent = el.textContent.slice(0, -1);
+            setTimeout(erase, 50);
+        } else {
+            setTimeout(type, 500);
+        }
+    }
+
     function type() {
         if (i < text.length) {
             el.textContent += text.charAt(i);
             i++;
             setTimeout(type, 100);
         } else {
-            setTimeout(function() {
-                document.getElementById('cursor').style.display = 'none';
-            }, 2000);
+            i = 0;
+            setTimeout(erase, 3000);
         }
     }
+
     type();
 })();
 </script>
