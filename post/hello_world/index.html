@@ -22,7 +22,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="google-site-verification" content="CGHN0W7w6iWZ8ggs2E8eQ_Wiq1IuSxJHXr-KLZIetgk" />
-  
+   <meta name="description" content="
+">  
   
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
       <script>
@@ -41,7 +42,7 @@
 
   <title>
     
-      Posts
+      Hello World
     
   </title>
 
@@ -85,56 +86,68 @@
 <a href="/">..</a>
 
 
-<h1>Posts</h1>
+<article>
+    <p class="post-meta">
+        <time datetime="2024-09-24 00:00:00 &#43;0900 KST">
+            2024-09-24
+        </time>
+    </p>
 
+    <h1>Hello World</h1>
 
+    
 
-    <ul><li>2026-02-07
-            
-            <a href="/post/fft/">FFT on GPU</a>
-        </li>
-        <li>2025-12-28
-            
-            <a href="/post/data_format/">Data_format</a>
-        </li>
-        <li>2025-12-02
-            
-            <a href="/post/int8tofloat16/">Int4 to FP16 dequantization optimization</a>
-        </li>
-        <li>2025-08-06
-            
-            <a href="/post/gpu_architec/">Gpu_architec</a>
-        </li>
-        <li>2025-06-11
-            
-            <a href="/post/loss-function/">Loss Function in information geometry</a>
-        </li>
-        <li>2025-03-05
-            
-            <a href="/post/cuda-basic-operation/">cuda basic operation</a>
-        </li>
-        <li>2024-09-27
-            
-            <a href="/post/matryoshka-representation-learning-review/">Matryoshka Representation Learning Review</a>
-        </li>
-        <li>2024-09-25
-            
-            <a href="/post/sts-project-%ED%9A%8C%EA%B3%A0/">STS Project 회고</a>
-        </li>
-        <li>2024-09-24
-            
-            <a href="/post/hello_blog/">Hello_blog</a>
-        </li>
-        <li>2024-09-24
-            
-            <a href="/post/game-of-life/">공사장의 구석</a>
-        </li>
-        <li>2024-09-24
-            
-            <a href="/post/hello_world/">Hello World</a>
-        </li>
-        
-    </ul>
+    <pre id="donut" style="font-size: 10px; line-height: 1; letter-spacing: 2px; text-align: center;"></pre>
+<script>
+(function() {
+    var A = 1, B = 1;
+    var el = document.getElementById('donut');
+
+    function render() {
+        var b = [];
+        var z = [];
+        var width = 80, height = 22;
+        for (var k = 0; k < width * height; k++) {
+            b[k] = k % width === width - 1 ? '\n' : ' ';
+            z[k] = 0;
+        }
+
+        for (var j = 0; j < 6.28; j += 0.07) {
+            for (var i = 0; i < 6.28; i += 0.02) {
+                var c = Math.sin(i),
+                    d = Math.cos(j),
+                    e = Math.sin(A),
+                    f = Math.sin(j),
+                    g = Math.cos(A),
+                    h = d + 2,
+                    D = 1 / (c * h * e + f * g + 5),
+                    l = Math.cos(i),
+                    m = Math.cos(B),
+                    n = Math.sin(B),
+                    t = c * h * g - f * e;
+
+                var x = (40 + 30 * D * (l * h * m - t * n)) | 0;
+                var y = (12 + 15 * D * (l * h * n + t * m)) | 0;
+                var o = x + width * y;
+                var N = (8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n)) | 0;
+
+                if (y > 0 && y < height && x > 0 && x < width && D > z[o]) {
+                    z[o] = D;
+                    b[o] = '.,-~:;=!*#$@'[N > 0 ? N : 0];
+                }
+            }
+        }
+
+        el.textContent = b.join('');
+        A += 0.04;
+        B += 0.02;
+    }
+
+    setInterval(render, 50);
+})();
+</script>
+
+</article>
 
 
 

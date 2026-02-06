@@ -84,19 +84,20 @@
         <main class="page-content" aria-label="Content">
             <div class="w">
 
-
-
-
 <header style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; margin-bottom: 20px;">
     <div style="width: 100%; height: 100%; background-color: white; flex-shrink: 0;">
-        
         <img src="/img/background.gif" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
     </div>
     <br>
     <div>
-        <h1>Yongjun&#39;s blog</h1></div>
-    
+        <h1><span id="typed-title"></span><span id="cursor">|</span></h1></div>
+
 </header>
+
+<div id="search-wrapper">
+    <input id="search-input" type="text" placeholder="Search posts..." autocomplete="off">
+    <ul id="search-results"></ul>
+</div>
 
 
 <ul><li>info</li>
@@ -140,10 +141,10 @@
     </ul>
 
 <li><a href="/tags">categories</a></li>
-            <ul><li><a href="/tags/algorithm">algorithm</a></li><li><a href="/tags/optimization">optimization</a></li><li><a href="/tags/nlp">NLP</a></li><li><a href="/tags/CUDA">Machine Learning</a></li><li><a href="/tags">...</a></li></ul>
+            <ul><li><a href="/tags/algorithm">algorithm</a></li><li><a href="/tags/optimization">optimization</a></li><li><a href="/tags/nlp">NLP</a></li><li><a href="/tags/machine-learning">Machine Learning</a></li><li><a href="/tags">...</a></li></ul>
 <li>공사중...</li>
             <ul><li>공사중...</li>
-            <ul><li>공사중...</li><li><a href="/post/hello_world">공사중...</a></li></ul>
+            <ul><li>공사중...</li><li><a href="/post/hello_world">공사중...</a></li><li><a href="/post/game-of-life">공사장의 구석..</a></li></ul>
 </ul>
 <li>TIP</li>
             <ul><li>Working....</li></ul>
@@ -160,7 +161,106 @@
             margin-top: 10px;
         }
     }
+    #cursor {
+        animation: blink 0.7s step-end infinite;
+    }
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+    #search-wrapper {
+        margin-bottom: 1.5em;
+    }
+    #search-input {
+        width: 100%;
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: inherit;
+        border: 1px solid;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        box-sizing: border-box;
+        outline: none;
+    }
+    #search-results {
+        list-style: none;
+        padding: 0;
+        margin: 0.5em 0 0 0;
+    }
+    #search-results li {
+        padding: 4px 0;
+    }
+    #search-results .search-date {
+        opacity: 0.6;
+        margin-right: 0.5em;
+    }
+    #search-results .search-tag {
+        font-size: 0.85em;
+        opacity: 0.5;
+    }
 </style>
+
+<script>
+(function() {
+    var text = "\"Yongjun's blog\"";
+    var el = document.getElementById('typed-title');
+    var i = 0;
+    function type() {
+        if (i < text.length) {
+            el.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, 100);
+        } else {
+            setTimeout(function() {
+                document.getElementById('cursor').style.display = 'none';
+            }, 2000);
+        }
+    }
+    type();
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script>
+(function() {
+    var input = document.getElementById('search-input');
+    var resultsEl = document.getElementById('search-results');
+    var fuse = null;
+
+    fetch('\/index.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            fuse = new Fuse(data, {
+                keys: [
+                    { name: 'title', weight: 0.5 },
+                    { name: 'tags', weight: 0.2 },
+                    { name: 'content', weight: 0.3 }
+                ],
+                threshold: 0.4,
+                includeScore: true
+            });
+        });
+
+    input.addEventListener('input', function() {
+        var query = this.value.trim();
+        resultsEl.innerHTML = '';
+
+        if (!query || !fuse) return;
+
+        var results = fuse.search(query).slice(0, 10);
+        results.forEach(function(r) {
+            var item = r.item;
+            var li = document.createElement('li');
+            var displayTags = item.tags.filter(function(t) { return t.toLowerCase() !== 'pinned'; });
+            var tags = displayTags.length ? ' <span class="search-tag">[' + displayTags.join(', ') + ']</span>' : '';
+            li.innerHTML = '<span class="search-date">' + item.date + '</span>'
+                + '<a href="' + item.permalink + '">' + item.title + '</a>'
+                + tags;
+            resultsEl.appendChild(li);
+        });
+    });
+})();
+</script>
 
 
             </div>
