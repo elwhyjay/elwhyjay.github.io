@@ -102,7 +102,7 @@ shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. �
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -180,8 +180,8 @@ shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. �
 <li><code>cudaDeviceSynchronize</code>는 device에서 실행중인 모든 kernel이 종료될때까지 기다리는 함수이다.</li>
 </ul>
 <h2 id="덧셈연산">덧셈연산</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>__global__ <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">vector_add</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> N) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> idx <span style="color:#f92672">=</span> threadIdx.x <span style="color:#f92672">+</span> blockIdx.x <span style="color:#f92672">*</span> blockDim.x;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> stride <span style="color:#f92672">=</span> blockDim.x <span style="color:#f92672">*</span> gridDim.x;
@@ -194,33 +194,33 @@ shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. �
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>d_A, <span style="color:#f92672">*</span>d_B, <span style="color:#f92672">*</span>d_C;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Allocate device memory
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_B, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMalloc</span>(<span style="color:#f92672">&amp;</span>d_C, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Copy input data from host to device
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMemcpy</span>(d_A, A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyHostToDevice);
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMemcpy</span>(d_A, A, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyHostToDevice);
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMemcpy</span>(d_B, B, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyHostToDevice);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Calculate grid and block dimensions
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> threadsPerBlock <span style="color:#f92672">=</span> <span style="color:#ae81ff">256</span>;
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> threadsPerBlock <span style="color:#f92672">=</span> <span style="color:#ae81ff">256</span>;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> blocksPerGrid <span style="color:#f92672">=</span> (N <span style="color:#f92672">+</span> threadsPerBlock <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> threadsPerBlock;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Launch the kernel
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    vector_add<span style="color:#f92672">&lt;&lt;&lt;</span>blocksPerGrid, threadsPerBlock<span style="color:#f92672">&gt;&gt;&gt;</span>(d_A, d_B, d_C, N);
+</span></span></span><span style="display:flex;"><span>    vector_add<span style="color:#f92672">&lt;&lt;&lt;</span>blocksPerGrid, threadsPerBlock<span style="color:#f92672">&gt;&gt;&gt;</span>(d_A, d_B, d_C, N);
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaDeviceSynchronize</span>();
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Copy result back to host
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaMemcpy</span>(C, d_C, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyDeviceToHost);
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaMemcpy</span>(C, d_C, N <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>), cudaMemcpyDeviceToHost);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Free device memory
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">cudaFree</span>(d_A);
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaFree</span>(d_A);
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaFree</span>(d_B);
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">cudaFree</span>(d_C);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="곱셈연산">곱셈연산</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>__global__ <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">matrix_multiplication_kernel</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> M, <span style="color:#66d9ef">int</span> N, <span style="color:#66d9ef">int</span> K) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> col <span style="color:#f92672">=</span> blockIdx.x <span style="color:#f92672">*</span> blockDim.x <span style="color:#f92672">+</span> threadIdx.x;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> row <span style="color:#f92672">=</span> blockIdx.y <span style="color:#f92672">*</span> blockDim.y <span style="color:#f92672">+</span> threadIdx.y;
@@ -236,7 +236,7 @@ shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. �
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// A, B, C are device pointers (i.e. pointers to memory on the GPU)
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// A,B,C 가 device pointer이므로 cudaMalloc과 cudaMemcpy는 생략한다.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">solve</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> M, <span style="color:#66d9ef">int</span> N, <span style="color:#66d9ef">int</span> K) {
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">solve</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> M, <span style="color:#66d9ef">int</span> N, <span style="color:#66d9ef">int</span> K) {
 </span></span><span style="display:flex;"><span>    dim3 <span style="color:#a6e22e">threadsPerBlock</span>(<span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">16</span>);
 </span></span><span style="display:flex;"><span>    dim3 <span style="color:#a6e22e">blocksPerGrid</span>((K <span style="color:#f92672">+</span> threadsPerBlock.x <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> threadsPerBlock.x,
 </span></span><span style="display:flex;"><span>                       (M <span style="color:#f92672">+</span> threadsPerBlock.y <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> threadsPerBlock.y);
@@ -247,9 +247,9 @@ shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. �
 </span></span></code></pre></div><p>A matrix의 크기가 MxN이고 B matrix의 크기가 NxK일때, C matrix의 크기는 MxK인 곱셈을 수행한다.
 이 구현은 꽤 Naive한 구현이다. 이 구현에서 CUDA Kernel은 DRAM을 사용하여 각 thread가 A와 B의 행렬을 곱하는 방식으로 동작한다. 조금더 개선된 속도를 위해
 shared memory를 사용하여 A와 B의 행렬을 곱하는 방식이 있다. 구현은 다음과 같다.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cuda_runtime.h&gt;</span><span style="color:#75715e">
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define TILE_SIZE 16
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>__global__ <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">matrix_multiplication_kernel_with_shared_memory</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> M, <span style="color:#66d9ef">int</span> N, <span style="color:#66d9ef">int</span> K) {
+</span></span></span><span style="display:flex;"><span>__global__ <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">matrix_multiplication_kernel_with_shared_memory</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> A, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> B, <span style="color:#66d9ef">float</span><span style="color:#f92672">*</span> C, <span style="color:#66d9ef">int</span> M, <span style="color:#66d9ef">int</span> N, <span style="color:#66d9ef">int</span> K) {
 </span></span><span style="display:flex;"><span>    __shared__ <span style="color:#66d9ef">float</span> A_shared[TILE_SIZE][TILE_SIZE];
 </span></span><span style="display:flex;"><span>    __shared__ <span style="color:#66d9ef">float</span> B_shared[TILE_SIZE][TILE_SIZE];
 </span></span><span style="display:flex;"><span>

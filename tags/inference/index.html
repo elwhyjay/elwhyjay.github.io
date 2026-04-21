@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<style>
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: 0px solid ;
+      border-color: none;
+      border-radius: 60%;
+      z-index: 1000;
+      color: inherit;
+    }
+</style>
+
+<html lang="ko-kr"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google-site-verification" content="CGHN0W7w6iWZ8ggs2E8eQ_Wiq1IuSxJHXr-KLZIetgk" />
+  
+  
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YXXYQPDYLX');
+        }
+      </script>
+
+  <title>
+    
+      Inference
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.f851b574c8f7f906d9d8e9911c9f189f9b2b655d6dbfe90426404861dda3c29ad933703258e46b8085fa1e0ae0c2adec82bb65ffa00743e4b4bccae949802b2d.css" integrity="sha512-&#43;FG1dMj3&#43;QbZ2OmRHJ8Yn5srZV1tv&#43;kEJkBIYd2jwprZM3AyWORrgIX6Hgrgwq3sgrtl/6AHQ&#43;S0vMrpSYArLQ==" />
+  
+</head>
+<body a="auto">
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="light-icon">
+                <svg id="light-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            </span>
+            <span class="dark-icon" style="display:none">
+                <svg id="dark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </span>
+            
+            
+        </button>
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<h1>Inference</h1>
+
+
+<ul>
+    <li>
+        <a href="/post/torch_compile_deep_dive/">torch.compile 탐구생활</a>
+    </li>
+</ul>
+
+            </div>
+        </main>
+        <script>
+            
+            function getEffectiveTheme(theme) {
+              if (theme === 'auto') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+              return theme;
+            }
+
+            function updateIcons(effectiveTheme) {
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = effectiveTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = effectiveTheme === 'dark' ? 'inline' : 'none';
+            }
+
+            function toggleTheme() {
+              const body = document.querySelector('body');
+              const currentTheme = body.getAttribute('a');
+              const effective = getEffectiveTheme(currentTheme);
+              const newTheme = effective === 'dark' ? 'light' : 'dark';
+
+              body.setAttribute('a', newTheme);
+              localStorage.setItem('theme', newTheme);
+              updateIcons(newTheme);
+            }
+
+            
+            document.addEventListener('DOMContentLoaded', () => {
+              const savedTheme = localStorage.getItem('theme');
+              if (savedTheme) {
+                document.querySelector('body').setAttribute('a', savedTheme);
+                updateIcons(savedTheme);
+              } else {
+                
+                updateIcons(getEffectiveTheme('auto'));
+              }
+            });
+        </script>
+    </body>
+</html>

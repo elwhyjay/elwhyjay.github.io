@@ -2,6 +2,36 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://elwhyjay.github.io/tags/aotautograd/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/inference/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/mlops/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/post/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/pytorch/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/torch.compile/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/post/torch_compile_deep_dive/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/torchdynamo/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/torchinductor/</loc>
+    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
+  </url><url>
     <loc>https://elwhyjay.github.io/tags/algorithm/</loc>
     <lastmod>2026-02-07T00:35:33+09:00</lastmod>
   </url><url>
@@ -12,12 +42,6 @@
     <lastmod>2026-02-07T00:35:33+09:00</lastmod>
   </url><url>
     <loc>https://elwhyjay.github.io/tags/gpu/</loc>
-    <lastmod>2026-02-07T00:35:33+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/post/</loc>
-    <lastmod>2026-02-07T00:35:33+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/tags/</loc>
     <lastmod>2026-02-07T00:35:33+09:00</lastmod>
   </url><url>
     <loc>https://elwhyjay.github.io/tags/ai/</loc>

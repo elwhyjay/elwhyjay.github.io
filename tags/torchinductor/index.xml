@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>TorchInductor on YongJun&#39;s blog</title>
+    <link>https://elwhyjay.github.io/tags/torchinductor/</link>
+    <description>Recent content in TorchInductor on YongJun&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>ko-kr</language>
+    <lastBuildDate>Tue, 21 Apr 2026 14:00:00 +0900</lastBuildDate>
+    <atom:link href="https://elwhyjay.github.io/tags/torchinductor/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>torch.compile 탐구생활</title>
+      <link>https://elwhyjay.github.io/post/torch_compile_deep_dive/</link>
+      <pubDate>Tue, 21 Apr 2026 14:00:00 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/post/torch_compile_deep_dive/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&#xA;&lt;code&gt;torch.compile()&lt;/code&gt;는 데코레이터 한 줄로 PyTorch 코드를 가속해주지만, 그 뒤에는 네 개의 컴포넌트(TorchDynamo, AOTAutograd, PrimTorch, TorchInductor)가 Python 바이트코드부터 Triton 커널까지 다루는 완전한 컴파일러 파이프라인이 돌아가고 있다. 본 글은 내부 구조를 해부하고, MLsys 실무 및 학습 과정에서 마주치는 지점들(재컴파일, 커스텀 op, AOT Inductor, CUDA Graph, 디버깅)까지 한 번에 정리한다.&lt;/p&gt;&#xA;&lt;p&gt;본 글은 torch 2.4.1 기준이다.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;0-왜-torchcompile인가&#34;&gt;0. 왜 torch.compile인가&lt;/h2&gt;&#xA;&lt;p&gt;PyTorch는 오랫동안 &amp;ldquo;동적(eager)&amp;rdquo; 실행으로 개발 생산성을 얻고, 성능은 TorchScript/FX로 정적화하여 챙기는 이중 구조였다. 문제는 TorchScript는 쓰기 어려웠고, FX는 데이터 의존적 제어 흐름을 만나면 그대로 깨졌다는 것이다. 결국 대부분의 모델은 eager로 학습하고, 배포 시점에 별도로 TensorRT/ONNX로 변환하는 우회로를 탔다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

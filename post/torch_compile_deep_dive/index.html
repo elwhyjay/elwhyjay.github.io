@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+
+<style>
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: 0px solid ;
+      border-color: none;
+      border-radius: 60%;
+      z-index: 1000;
+      color: inherit;
+    }
+</style>
+
+<html lang="ko-kr"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google-site-verification" content="CGHN0W7w6iWZ8ggs2E8eQ_Wiq1IuSxJHXr-KLZIetgk" />
+   <meta name="description" content="
+TL;DR
+torch.compile()는 데코레이터 한 줄로 PyTorch 코드를 가속해주지만, 그 뒤에는 네 개의 컴포넌트(TorchDynamo, AOTAutograd, PrimTorch, TorchInductor)가 Python 바이트코드부터 Triton 커널까지 다루는 완전한 컴파일러 파이프라인이 돌아가고 있다. 본 글은 내부 구조를 해부하고, MLsys 실무 및 학습 과정에서 마주치는 지점들(재컴파일, 커스텀 op, AOT Inductor, CUDA Graph, 디버깅)까지 한 번에 정리한다.
+본 글은 torch 2.4.1 기준이다.
+
+0. 왜 torch.compile인가
+PyTorch는 오랫동안 &ldquo;동적(eager)&rdquo; 실행으로 개발 생산성을 얻고, 성능은 TorchScript/FX로 정적화하여 챙기는 이중 구조였다. 문제는 TorchScript는 쓰기 어려웠고, FX는 데이터 의존적 제어 흐름을 만나면 그대로 깨졌다는 것이다. 결국 대부분의 모델은 eager로 학습하고, 배포 시점에 별도로 TensorRT/ONNX로 변환하는 우회로를 탔다.">  
+  
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YXXYQPDYLX');
+        }
+      </script>
+
+  <title>
+    
+      torch.compile 탐구생활
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.f851b574c8f7f906d9d8e9911c9f189f9b2b655d6dbfe90426404861dda3c29ad933703258e46b8085fa1e0ae0c2adec82bb65ffa00743e4b4bccae949802b2d.css" integrity="sha512-&#43;FG1dMj3&#43;QbZ2OmRHJ8Yn5srZV1tv&#43;kEJkBIYd2jwprZM3AyWORrgIX6Hgrgwq3sgrtl/6AHQ&#43;S0vMrpSYArLQ==" />
+  
+</head>
+<body a="auto">
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="light-icon">
+                <svg id="light-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            </span>
+            <span class="dark-icon" style="display:none">
+                <svg id="dark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </span>
+            
+            
+        </button>
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2026-04-21 14:00:00 &#43;0900 KST">
+            2026-04-21
+        </time>
+    </p>
+
+    <h1>torch.compile 탐구생활</h1>
+
+    
+
+    <blockquote>
+<p><strong>TL;DR</strong>
+<code>torch.compile()</code>는 데코레이터 한 줄로 PyTorch 코드를 가속해주지만, 그 뒤에는 네 개의 컴포넌트(TorchDynamo, AOTAutograd, PrimTorch, TorchInductor)가 Python 바이트코드부터 Triton 커널까지 다루는 완전한 컴파일러 파이프라인이 돌아가고 있다. 본 글은 내부 구조를 해부하고, MLsys 실무 및 학습 과정에서 마주치는 지점들(재컴파일, 커스텀 op, AOT Inductor, CUDA Graph, 디버깅)까지 한 번에 정리한다.</p>
+<p>본 글은 torch 2.4.1 기준이다.</p>
+</blockquote>
+<h2 id="0-왜-torchcompile인가">0. 왜 torch.compile인가</h2>
+<p>PyTorch는 오랫동안 &ldquo;동적(eager)&rdquo; 실행으로 개발 생산성을 얻고, 성능은 TorchScript/FX로 정적화하여 챙기는 이중 구조였다. 문제는 TorchScript는 쓰기 어려웠고, FX는 데이터 의존적 제어 흐름을 만나면 그대로 깨졌다는 것이다. 결국 대부분의 모델은 eager로 학습하고, 배포 시점에 별도로 TensorRT/ONNX로 변환하는 우회로를 탔다.</p>
+<p>PyTorch 2.x의 <code>torch.compile</code>은 이 구조를 근본적으로 다시 짰다:</p>
+<ul>
+<li><strong>코드 변경 최소화</strong>: <code>model = torch.compile(model)</code> 한 줄.</li>
+<li><strong>동적 제어 흐름 지원</strong>: <code>if x.sum() &gt; 0:</code> 같은 tensor-dependent 분기도 그래프 break로 해결하되 외곽은 계속 최적화.</li>
+<li><strong>자동 backward 캡처</strong>: AOTAutograd가 joint forward/backward 그래프를 만들고 max-flow/min-cut으로 재계산 최적화까지 수행.</li>
+<li><strong>Triton 코드 생성</strong>: 대부분의 pointwise/reduction op을 하나의 Triton 커널로 합쳐 메모리 트래픽을 줄임.</li>
+</ul>
+<p>ML 시스템 엔지니어 관점에서 중요한 건 결과적으로 <strong>Python/프레임워크 오버헤드가 줄고, 메모리 바운드 커널이 퓨전되고, CUDA Graph가 자동으로 붙는다</strong>는 점이다. 추론 엔지니어에게는 <strong>AOT Inductor</strong>로 ahead-of-time 컴파일해서 서빙까지 갈 수 있는 길도 열렸다.</p>
+<h2 id="1-큰-그림-4개-컴포넌트">1. 큰 그림: 4개 컴포넌트</h2>
+<p><img src="/img/torch_compile_backend_integration.jpg" alt="PT2 for Backend Integration"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>사용자 모델 코드
+</span></span><span style="display:flex;"><span>   │
+</span></span><span style="display:flex;"><span>   ▼
+</span></span><span style="display:flex;"><span>[TorchDynamo]            # Python 바이트코드 레벨에서 FX Graph 캡처 (프런트엔드)
+</span></span><span style="display:flex;"><span>   │ FX Graph (torch IR)
+</span></span><span style="display:flex;"><span>   ▼
+</span></span><span style="display:flex;"><span>[AOTAutograd]            # 순방향/역방향 joint graph 생성, decompose
+</span></span><span style="display:flex;"><span>   │ FX Graph (aten/prims IR)
+</span></span><span style="display:flex;"><span>   ▼
+</span></span><span style="display:flex;"><span>[PrimTorch]              # 2000+ op → ~250 primitives로 정규화
+</span></span><span style="display:flex;"><span>   │
+</span></span><span style="display:flex;"><span>   ▼
+</span></span><span style="display:flex;"><span>[TorchInductor]          # Inductor IR로 하강, fusion, codegen
+</span></span><span style="display:flex;"><span>   │
+</span></span><span style="display:flex;"><span>   ▼
+</span></span><span style="display:flex;"><span>Triton(GPU) / C++·OpenMP(CPU) 커널
+</span></span></code></pre></div><ul>
+<li><strong>TorchDynamo</strong>: PEP 523을 사용해 CPython의 프레임 평가 함수를 훅하고, 실행 직전에 바이트코드를 시뮬레이션하면서 FX Graph를 만든다. 지원 못 하는 연산을 만나면 <strong>graph break</strong>로 그래프를 쪼개고, 해당 지점은 Python 인터프리터가 실행한다.</li>
+<li><strong>AOTAutograd</strong>: <code>__torch_dispatch__</code> 메커니즘으로 op dispatch를 가로채서 순/역방향 joint graph를 만들고, <code>partition_fn</code>으로 둘을 분리한다.</li>
+<li><strong>PrimTorch</strong>: Composite op을 더 낮은 수준의 aten/prims op으로 분해한다. 벤더 입장에서 커널 최적화 대상을 250개 정도로 줄여주는 규약이다.</li>
+<li><strong>TorchInductor</strong>: FX Graph를 Inductor IR로 하강시키고, Scheduler가 연산자 융합을 수행한 뒤 Triton 또는 C++ 코드를 생성한다.</li>
+</ul>
+<p>이 4개 모두 Python으로 작성되어 있다는 점이 PyTorch 1.x 대비 중요한 변화다. 벤더와 개발자가 직접 손 넣을 수 있게 됐다.</p>
+<h2 id="2-사용법-basics">2. 사용법 Basics</h2>
+<h3 id="21-기본-형태">2.1 기본 형태</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 방식 1: 함수 감싸기</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">f</span>(x, y):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>sin(x) <span style="color:#f92672">+</span> torch<span style="color:#f92672">.</span>cos(y)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>opt_f <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>compile(f)
+</span></span><span style="display:flex;"><span>out <span style="color:#f92672">=</span> opt_f(torch<span style="color:#f92672">.</span>randn(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">10</span>), torch<span style="color:#f92672">.</span>randn(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">10</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 방식 2: 데코레이터</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@torch.compile</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">g</span>(x, y):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>sin(x) <span style="color:#f92672">+</span> torch<span style="color:#f92672">.</span>cos(y)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 방식 3: nn.Module</span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>compile(MyModel()<span style="color:#f92672">.</span>cuda())
+</span></span></code></pre></div><p><code>torch.compile</code>은 실제로는 <code>torch._dynamo.optimize</code>의 얇은 래퍼다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compile</span>(model<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>, <span style="color:#f92672">*</span>, fullgraph<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>, dynamic<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>            backend<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;inductor&#34;</span>, mode<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>, options<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>, disable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>_dynamo<span style="color:#f92672">.</span>optimize(backend<span style="color:#f92672">=</span>backend, nopython<span style="color:#f92672">=</span>fullgraph,
+</span></span><span style="display:flex;"><span>                                  dynamic<span style="color:#f92672">=</span>dynamic, disable<span style="color:#f92672">=</span>disable)(model)
+</span></span></code></pre></div><p>즉, <code>torch.compile</code>을 호출한다고 실제 컴파일이 일어나는 게 아니다. <strong>함수가 처음 호출되는 시점</strong>에야 비로소 Dynamo가 바이트코드를 훅하고 컴파일이 시작된다. 이 &ldquo;처음 한 번의 지연&quot;은 모든 JIT 컴파일러의 공통 특성이자, 프로덕션에서 워밍업을 반드시 해야 하는 이유다.</p>
+<h3 id="22-백엔드와-모드">2.2 백엔드와 모드</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch._dynamo <span style="color:#66d9ef">as</span> dynamo
+</span></span><span style="display:flex;"><span>dynamo<span style="color:#f92672">.</span>list_backends()
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [&#39;cudagraphs&#39;, &#39;inductor&#39;, &#39;onnxrt&#39;, &#39;openxla&#39;, &#39;tvm&#39;]</span>
+</span></span></code></pre></div><p><img src="/img/torch_compile_backends_summary.jpg" alt="백엔드 요약"></p>
+<table>
+  <thead>
+      <tr>
+          <th>backend</th>
+          <th>forward</th>
+          <th>backward</th>
+          <th>그래프 최적화</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>eager</code></td>
+          <td>Dynamo</td>
+          <td>N/A</td>
+          <td>없음</td>
+      </tr>
+      <tr>
+          <td><code>aot_eager</code></td>
+          <td>Dynamo</td>
+          <td>AOTAutograd</td>
+          <td>없음</td>
+      </tr>
+      <tr>
+          <td><code>inductor</code> (기본)</td>
+          <td>Dynamo</td>
+          <td>AOTAutograd</td>
+          <td>Inductor</td>
+      </tr>
+      <tr>
+          <td><code>cudagraphs</code></td>
+          <td>Dynamo</td>
+          <td>AOTAutograd</td>
+          <td>CUDA Graph</td>
+      </tr>
+      <tr>
+          <td>커스텀</td>
+          <td>Dynamo</td>
+          <td>AOTAutograd</td>
+          <td>직접 구현</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>디버깅 순서</strong>는 <code>eager</code> → <code>aot_eager</code> → <code>inductor</code>가 정석이다. 먼저 Dynamo가 그래프를 제대로 캡처하는지, 다음으로 backward가 정상인지, 마지막으로 Inductor의 최적화가 문제를 일으키지 않는지를 차례로 확인한다.</p>
+<p>모드는 4가지:</p>
+<ul>
+<li><strong><code>default</code></strong>: 컴파일 시간/메모리 오버헤드 없이 합리적 속도. 대부분의 훈련 시나리오.</li>
+<li><strong><code>reduce-overhead</code></strong>: CUDA Graph로 Python/런치 오버헤드 제거. 추론에 적합하지만 GPU 메모리는 더 씀.</li>
+<li><strong><code>max-autotune</code></strong>: Triton 템플릿 기반 matmul과 autotuning. 컴파일 오래 걸리는 대신 피크 성능.</li>
+<li><strong><code>max-autotune-no-cudagraphs</code></strong>: 위와 같지만 CUDA Graph 미사용.</li>
+</ul>
+<h2 id="3-torchdynamo--프런트엔드-그래프-캡처">3. TorchDynamo — 프런트엔드 그래프 캡처</h2>
+<h3 id="31-jit-컴파일러의-기본-구조">3.1 JIT 컴파일러의 기본 구조</h3>
+<p>PyTorch 컴파일러는 Just-In-Time 컴파일러다. JIT의 핵심은 두 가지: <strong>가드(guard)</strong> 와 <strong>변환된 코드(transformed code)</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">f</span>(x, mod):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> guard, transformed_code <span style="color:#f92672">in</span> f<span style="color:#f92672">.</span>compiled_entries:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> guard(x, mod):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> transformed_code(x, mod)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        guard, transformed_code <span style="color:#f92672">=</span> compile_and_optimize(x, mod)
+</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>compiled_entries<span style="color:#f92672">.</span>append([guard, transformed_code])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> transformed_code(x, mod)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> FailToCompileError:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> original_code(x, mod)   <span style="color:#75715e"># fallback</span>
+</span></span></code></pre></div><p>Dynamo는 입력이 들어올 때마다 등록된 가드들을 하나씩 확인한다. 맞는 게 있으면 그 변환 코드를 실행하고, 없으면 새로 컴파일해서 엔트리를 추가한다. 하나의 Python code object에 대해 기본 캐시 크기는 <strong>64</strong>이고, 이를 넘으면 해당 함수는 더 이상 컴파일하지 않고 eager로 돌린다.</p>
+<h3 id="32-pep-523과-cpython-훅">3.2 PEP 523과 CPython 훅</h3>
+<p><img src="/img/torch_compile_dynamo_behavior.jpg" alt="Default Python vs TorchDynamo Behavior"></p>
+<p>좌측이 기본 CPython의 함수 실행 흐름이다. <code>foo()</code> 호출 시 CPython은 <code>PyCodeObject</code>(바이트코드/상수/변수 테이블)를 기반으로 <code>PyFrameObject</code>(실행 환경)를 만들고, 이를 <code>_PyEval_EvalFrameDefault()</code>에 넘겨 한 바이트코드씩 실행한다.</p>
+<p><strong>PEP 523</strong>은 이 <code>_PyEval_EvalFrameDefault</code>를 사용자 정의 함수로 교체할 수 있는 C API를 제공한다. Dynamo는 이 API로 <code>custom_eval_frame_shim()</code>을 끼워 넣어서, 바이트코드 실행 직전에 가로채고 분석한다. 우측 그림처럼:</p>
+<ol>
+<li><code>PyFrameObject</code>를 받는다.</li>
+<li>이 프레임의 <code>PyCodeObject</code>에 이미 <strong>캐시된 변환 결과</strong>가 있는지 확인한다.</li>
+<li>있고 guard가 통과하면 변환된 코드를 실행한다.</li>
+<li>없으면 <strong>dynamic bytecode analysis + transform</strong>을 수행해서 FX Graph와 patched PyFrameObject를 만들고 캐시한다.</li>
+</ol>
+<h3 id="33-바이트코드-시뮬레이션--fx-graph">3.3 바이트코드 시뮬레이션 → FX Graph</h3>
+<p>Python의 가상 머신은 스택 머신이다. 이해를 위한 예:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> dis
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hello</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Hello, world!&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dis<span style="color:#f92672">.</span>dis(hello)
+</span></span></code></pre></div><p>출력:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>0 LOAD_GLOBAL     0 (print)
+</span></span><span style="display:flex;"><span>2 LOAD_CONST      1 (&#39;Hello, world!&#39;)
+</span></span><span style="display:flex;"><span>4 CALL_FUNCTION   1
+</span></span><span style="display:flex;"><span>6 POP_TOP
+</span></span><span style="display:flex;"><span>8 LOAD_CONST      0 (None)
+</span></span><span style="display:flex;"><span>10 RETURN_VALUE
+</span></span></code></pre></div><p>Dynamo는 이 바이트코드를 <strong>실제로 실행하지 않고 시뮬레이션</strong>한다. 그 과정에서 PyTorch 연산을 만나면 FX Graph에 노드를 추가한다. 예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@torch.compile</span>(backend<span style="color:#f92672">=</span>my_compiler)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">foo</span>(x, y):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (x <span style="color:#f92672">+</span> y) <span style="color:#f92672">*</span> x
+</span></span></code></pre></div><p>이 함수는 다음 바이트코드로 컴파일된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>0 LOAD_FAST        0 (x)
+</span></span><span style="display:flex;"><span>2 LOAD_FAST        1 (y)
+</span></span><span style="display:flex;"><span>4 BINARY_ADD                 ← FX node: operator.add
+</span></span><span style="display:flex;"><span>6 LOAD_FAST        0 (x)
+</span></span><span style="display:flex;"><span>8 BINARY_MULTIPLY            ← FX node: operator.mul
+</span></span><span style="display:flex;"><span>10 RETURN_VALUE
+</span></span></code></pre></div><p>Dynamo는 <code>BINARY_ADD</code>, <code>BINARY_MULTIPLY</code>를 만날 때 각각 FX Node를 생성해서 최종 FX Graph를 만든다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>opcode         name    target                   args       kwargs
+</span></span><span style="display:flex;"><span>-------------  ------  -----------------------  ---------  --------
+</span></span><span style="display:flex;"><span>placeholder    x       x                        ()         {}
+</span></span><span style="display:flex;"><span>placeholder    y       y                        ()         {}
+</span></span><span style="display:flex;"><span>call_function  add     &lt;built-in function add&gt;  (x, y)     {}
+</span></span><span style="display:flex;"><span>call_function  mul     &lt;built-in function mul&gt;  (add, x)   {}
+</span></span><span style="display:flex;"><span>output         output  output                   ((mul,),)  {}
+</span></span></code></pre></div><p><img src="/img/torch_compile_workflow.jpg" alt="PyTorch Compiler Workflow"></p>
+<p>이 그림은 더 복잡한 함수에서의 전체 흐름을 보여준다. Source Code → Input → Guard 생성 → 바이트코드 분석 → <strong>Python 연산(텐서 계산 무관)</strong> 과 <strong>PyTorch 연산(순수 계산 그래프)</strong> 을 분리 → Transformed Bytecode → Guard 실패 시 Resume Function을 호출하고 재귀적으로 다시 분석.</p>
+<h3 id="34-guard-시스템">3.4 Guard 시스템</h3>
+<p>Dynamo가 만드는 guard의 예:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>GUARDS ___guarded_code.valid and ___check_tensors(x, y)
+</span></span></code></pre></div><p>런타임에 <code>x</code>, <code>y</code>의 device/dtype/shape/stride가 변했는지 C++ 함수로 빠르게 체크한다. 변하지 않았으면 컴파일된 코드 재사용, 변했으면 재컴파일.</p>
+<p>기본 guard 대상:</p>
+<ul>
+<li>텐서: device, dtype, shape, stride, requires_grad, layout</li>
+<li>스칼라: 값 자체 (예: <code>n=4</code>이면 <code>n=4</code>만 특화)</li>
+<li>컨테이너: len, 각 원소 타입</li>
+<li>nn.Module: <code>__dict__</code>의 특정 속성</li>
+</ul>
+<p>이 때문에 Python 리스트의 원소를 매번 바꿔서 넘기거나 스칼라 인자가 매번 달라지면 재컴파일이 유발된다. 프로덕션에서는 <code>TORCH_LOGS=&quot;recompiles&quot;</code>로 원인을 추적할 수 있다.</p>
+<h3 id="35-graph-break">3.5 Graph Break</h3>
+<p>Dynamo가 처리 못 하는 걸 만나면 그 지점에서 그래프를 자른다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">toy_example</span>(a, b):
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> a <span style="color:#f92672">/</span> (torch<span style="color:#f92672">.</span>abs(a) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> b<span style="color:#f92672">.</span>sum() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:        <span style="color:#75715e"># ← 여기서 graph break</span>
+</span></span><span style="display:flex;"><span>        b <span style="color:#f92672">=</span> b <span style="color:#f92672">*</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">*</span> b
+</span></span></code></pre></div><p>결과적으로 다음과 같이 3개의 그래프로 나뉜다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compiled_toy_example</span>(a, b):
+</span></span><span style="display:flex;"><span>    x, lt <span style="color:#f92672">=</span> __compiled_fn_0(a, b)      <span style="color:#75715e"># if 이전</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> lt:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> __resume_at_30_1(b, x)  <span style="color:#75715e"># if 분기</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> __resume_at_38_2(b, x)  <span style="color:#75715e"># else 분기</span>
+</span></span></code></pre></div><p><code>__resume_at_*</code>는 Dynamo가 바이트코드에 직접 생성한 이어가기 함수로, 해당 함수가 처음 실행될 때 다시 Dynamo에 의해 캡처/컴파일된다.</p>
+<p><strong>Graph break는 조용한 성능 킬러다</strong>. 너무 많이 발생하면 각 서브그래프가 너무 작아서 컴파일 이득이 사라지거나, CUDA Graph가 아예 붙지 못한다. <code>fullgraph=True</code>로 첫 break 시 에러를 내게 해서 점검하는 습관을 들이자:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>compile(model, fullgraph<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)   <span style="color:#75715e"># break 시 예외</span>
+</span></span></code></pre></div><p>혹은:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>_dynamo<span style="color:#f92672">.</span>explain(f, <span style="color:#f92672">*</span>args)   <span style="color:#75715e"># 어디서 break가 났는지 보고서 출력</span>
+</span></span></code></pre></div><h3 id="36-루프-언롤링과-함수-인라이닝">3.6 루프 언롤링과 함수 인라이닝</h3>
+<ul>
+<li><strong>루프</strong>: Dynamo는 Python for/while을 <strong>언롤링</strong>한다. <code>for i in range(1, 5):</code>는 곱셈 4번을 그대로 펼친 그래프가 된다. 런타임 변수 <code>n</code>이 guard로 특화되므로, <code>n</code>이 바뀌면 재컴파일된다.</li>
+<li><strong>함수 호출</strong>: 기본적으로 <strong>인라이닝</strong>한다. 호출된 함수가 다시 break를 일으키지 않는 한 한 그래프로 합친다. 재귀 함수도 인라이닝 대상이다.</li>
+<li><strong>데이터 의존 조건문</strong>: 인라이닝 실패 → 호출자에게까지 break가 전파된다.</li>
+</ul>
+<h3 id="37-ddp와-distributeddataparallel">3.7 DDP와 DistributedDataParallel</h3>
+<p>DDP는 bucket 경계에서 allreduce를 호출해 통신과 backward를 오버랩한다. Dynamo가 모델 전체를 하나의 그래프로 캡처해버리면 모든 allreduce가 backward 끝까지 기다려야 해서 오버랩이 깨진다. 그래서 <strong>Dynamo는 DDP bucket 경계에 의도적으로 graph break를 삽입</strong>한다. EfficientNet-B0를 bucket 4MB로 쓸 때 5개 서브그래프로 쪼개지는 이유가 이것이다.</p>
+<h2 id="4-aotautograd--순역방향-joint-그래프">4. AOTAutograd — 순/역방향 joint 그래프</h2>
+<h3 id="41-왜-필요한가">4.1 왜 필요한가</h3>
+<p>Dynamo가 캡처한 FX Graph는 <strong>순방향만</strong> 담고 있다. PyTorch의 역방향은 순방향을 실행하면서 autograd tape에 동적으로 기록되는 구조라, 순방향을 컴파일해도 역방향은 여전히 동적이다. 훈련 시나리오를 최적화하려면 backward도 미리 뽑아내야 한다.</p>
+<h3 id="42-__torch_dispatch__-메커니즘">4.2 <code>__torch_dispatch__</code> 메커니즘</h3>
+<p>PyTorch의 핵심은 <strong>dispatcher</strong>다. 한 연산자는 입력 텐서의 속성에 따라 여러 번 dispatch를 거친다(autograd → autocast → CPU/CUDA kernel). <code>__torch_dispatch__</code>는 이 dispatch 과정에 <strong>Python 레벨에서 끼어들 수 있는 훅</strong>이다.</p>
+<p>AOTAutograd는 <code>ProxyTorchDispatchMode</code>로 이 훅을 설정한다. op dispatch가 일어날 때마다 dispatch 이전에:</p>
+<ol>
+<li><strong>Proxy 생성</strong>: 해당 op을 FX Graph에 <code>call_function</code> 타입 노드로 추가하고, 결과에 Proxy를 바인딩</li>
+<li><strong>decompose</strong>: high-level op을 더 낮은 primitive로 분해</li>
+</ol>
+<p>이를 실제 함수 실행과 병행하면서 FX Graph가 점진적으로 만들어진다.</p>
+<h3 id="43-joint-graph-구축">4.3 joint graph 구축</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>call_user_compiler()
+</span></span><span style="display:flex;"><span>└── compile_fx(): inductor 구현
+</span></span><span style="display:flex;"><span>    └── aot_dispatch_autograd(): joint graph 캡처 및 분할
+</span></span><span style="display:flex;"><span>        ├── aot_dispatch_autograd_graph(): fw-bw joint graph 캡처
+</span></span><span style="display:flex;"><span>        │   ├── create_joint(): 순/역방향 계산을 joint_fn_to_trace로 캡슐화
+</span></span><span style="display:flex;"><span>        │   └── _create_graph() → make_fx() → _MakefxTracer.trace()
+</span></span><span style="display:flex;"><span>        │       ├── dispatch_trace(): 입력에 placeholder Proxy 생성
+</span></span><span style="display:flex;"><span>        │       └── decompose() 컨텍스트: ProxyTorchDispatchMode
+</span></span><span style="display:flex;"><span>        │           └── __torch_dispatch__(): op별 call_function Proxy 생성 + decompose
+</span></span><span style="display:flex;"><span>        └── partition_fn(): joint graph를 fw/bw로 분할
+</span></span><span style="display:flex;"><span>            ├── default_partition: 중간 결과 전부 backward에 전달
+</span></span><span style="display:flex;"><span>            └── min_cut_rematerialization_partition: 일부 재계산으로 메모리 절약
+</span></span></code></pre></div><p>예시로 <code>my_func(x) = cos(cos(x))</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span># joint graph
+</span></span><span style="display:flex;"><span>placeholder    primals_1
+</span></span><span style="display:flex;"><span>placeholder    tangents_1
+</span></span><span style="display:flex;"><span>call_function  cos         aten.cos.default  (primals_1,)
+</span></span><span style="display:flex;"><span>call_function  cos_1       aten.cos.default  (cos,)
+</span></span><span style="display:flex;"><span>call_function  sin         aten.sin.default  (cos,)
+</span></span><span style="display:flex;"><span>call_function  neg         aten.neg.default  (sin,)
+</span></span><span style="display:flex;"><span>call_function  mul         aten.mul.Tensor   (tangents_1, neg)
+</span></span><span style="display:flex;"><span>call_function  sin_1       aten.sin.default  (primals_1,)
+</span></span><span style="display:flex;"><span>call_function  neg_1       aten.neg.default  (sin_1,)
+</span></span><span style="display:flex;"><span>call_function  mul_1       aten.mul.Tensor   (mul, neg_1)
+</span></span><span style="display:flex;"><span>output         ([cos_1, mul_1],)
+</span></span></code></pre></div><p>순방향은 <code>cos_1</code>을 반환하고, 역방향은 <code>mul_1</code> (= dL/dx)을 반환한다.</p>
+<h3 id="44-partition--forwardbackward-분할">4.4 partition — forward/backward 분할</h3>
+<p>두 가지 전략:</p>
+<ul>
+<li><strong><code>default_partition</code></strong>: forward의 모든 중간 결과를 backward를 위해 보존. PyTorch 기본 동작과 동일.</li>
+<li><strong><code>min_cut_rematerialization_partition</code></strong> (Inductor 기본): activation checkpointing의 자동판. forward의 어떤 tensor를 backward에 넘길지, 어떤 걸 재계산할지를 <strong>최대유량-최소컷</strong> 그래프 문제로 풀어 메모리와 계산 간 tradeoff를 최적화한다.</li>
+</ul>
+<p>위 <code>my_func</code> 예시에서 min-cut 분할 결과:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>forward graph:
+</span></span><span style="display:flex;"><span>  placeholder primals_1
+</span></span><span style="display:flex;"><span>  call cos    (primals_1,)
+</span></span><span style="display:flex;"><span>  call cos_1  (cos,)
+</span></span><span style="display:flex;"><span>  output      ([cos_1, primals_1],)   # cos는 저장하지 않음!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>backward graph:
+</span></span><span style="display:flex;"><span>  placeholder primals_1, tangents_1
+</span></span><span style="display:flex;"><span>  call cos    (primals_1,)             # 재계산
+</span></span><span style="display:flex;"><span>  call sin    (cos,)
+</span></span><span style="display:flex;"><span>  call neg    (sin,)
+</span></span><span style="display:flex;"><span>  ...
+</span></span></code></pre></div><p>순방향에서 중간값 <code>cos</code>를 메모리에 저장하지 않고, 역방향에서 <code>cos(primals_1)</code>을 <strong>재계산</strong>한다. 현대 GPU는 메모리 바운드라 약간의 재계산이 큰 메모리 절감보다 싸다.</p>
+<h2 id="5-primtorch--op-세계의-단순화">5. PrimTorch — op 세계의 단순화</h2>
+<p>PyTorch에는 <strong>2,198개</strong>의 op이 있다. 이걸 벤더가 하드웨어별로 다 커널을 짜는 건 불가능하다.</p>
+<p><img src="/img/torch_compile_primtorch_ops.jpg" alt="PyTorch ops breakdown"></p>
+<p>PrimTorch는 Composite Implicit Autograd dispatch key를 활용해서 high-level op을 더 낮은 수준의 aten/prims primitive로 자동 분해한다. 최종적으로 벤더가 다뤄야 할 op은 <strong>~250개</strong> 수준의 폐쇄 집합으로 줄어든다. <code>CURRENT_DECOMPOSITION_TABLE</code>에서 decomposition 함수를 찾고, 없으면 <code>decompose()</code>로 계속 내려간다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decompose</span>(self, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>    dk <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>_C<span style="color:#f92672">.</span>DispatchKey<span style="color:#f92672">.</span>CompositeImplicitAutograd
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> dk <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>py_kernels:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>py_kernels[dk](<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> torch<span style="color:#f92672">.</span>_C<span style="color:#f92672">.</span>_dispatch_has_kernel_for_dispatch_key(self<span style="color:#f92672">.</span>name(), dk):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_op_dk(dk, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> NotImplemented
+</span></span></code></pre></div><p>커스텀 op은 기본적으로 decompose되지 않는다. Inductor는 이걸 <code>ExternKernel</code>(= fallback)로 취급한다.</p>
+<h2 id="6-torchinductor--백엔드-컴파일">6. TorchInductor — 백엔드 컴파일</h2>
+<h3 id="61-compile_fx의-전체-흐름">6.1 compile_fx의 전체 흐름</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>compile_fx_inner()
+</span></span><span style="display:flex;"><span>├── fx_codegen_and_compile()
+</span></span><span style="display:flex;"><span>│   ├── _recursive_post_grad_passes(): 그래프 최적화
+</span></span><span style="display:flex;"><span>│   │   ├── group_batch_fusion_passes: batch_linear/batch_relu 융합
+</span></span><span style="display:flex;"><span>│   │   ├── remove_noop_ops: aten.clone / aten.alias 제거
+</span></span><span style="display:flex;"><span>│   │   ├── fuse_ddp_communication: DDP 통신 융합
+</span></span><span style="display:flex;"><span>│   │   └── decompose_auto_functionalized: high-level op 추가 분해
+</span></span><span style="display:flex;"><span>│   ├── GraphLowering: FX Graph → Inductor IR
+</span></span><span style="display:flex;"><span>│   └── GraphLowering.compile_to_fn(): 하드웨어용 커널 코드 생성
+</span></span><span style="display:flex;"><span>│       ├── Scheduler.__init__(): 연산자 융합
+</span></span><span style="display:flex;"><span>│       │   ├── compute_dependencies
+</span></span><span style="display:flex;"><span>│       │   └── fuse_nodes
+</span></span><span style="display:flex;"><span>│       │       ├── get_possible_fusions
+</span></span><span style="display:flex;"><span>│       │       ├── score_fusion
+</span></span><span style="display:flex;"><span>│       │       └── can_fuse
+</span></span><span style="display:flex;"><span>│       └── Scheduler.codegen(): Triton/C++/OpenMP 코드 생성
+</span></span><span style="display:flex;"><span>└── cudagraph: reduce-overhead 모드일 때 추가
+</span></span><span style="display:flex;"><span>    ├── has_incompatible_cudagraph_ops
+</span></span><span style="display:flex;"><span>    └── cudagraphify
+</span></span></code></pre></div><h3 id="62-graphlowering--fx--inductor-ir">6.2 GraphLowering — FX → Inductor IR</h3>
+<p>FX Graph의 각 node를 Inductor IR로 바꾼다. Inductor IR의 세 가지 주요 유형:</p>
+<ul>
+<li><strong>PointWise</strong>: 원소별 계산. 메모리에 저장하지 않음. 계산 로직은 <code>inner_fn(index)</code> 함수로 기술됨.</li>
+<li><strong>InputBuffer</strong>: 입력 텐서. 실제 메모리 할당.</li>
+<li><strong>ComputedBuffer</strong>: 중간 결과 또는 출력. 실제 메모리 할당. <code>aten.sum</code> 같은 reduction이나 output으로 쓰이는 노드가 여기 해당.</li>
+</ul>
+<p>예를 들어 <code>torch.floor(x) + torch.ceil(x)</code>에서 <code>aten.add</code>의 <code>inner_fn</code>은 <code>aten.floor</code>와 <code>aten.ceil</code>의 <code>inner_fn</code>을 그대로 <strong>인라인</strong>해서 재사용한다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner_fn</span>(index):
+</span></span><span style="display:flex;"><span>    i0, i1, i2 <span style="color:#f92672">=</span> index
+</span></span><span style="display:flex;"><span>    tmp0 <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>load(arg0_1, i2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1024</span> <span style="color:#f92672">*</span> i1 <span style="color:#f92672">+</span> <span style="color:#ae81ff">524288</span> <span style="color:#f92672">*</span> i0)
+</span></span><span style="display:flex;"><span>    tmp1 <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>floor(tmp0)
+</span></span><span style="display:flex;"><span>    tmp2 <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>load(arg0_1, i2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">1024</span> <span style="color:#f92672">*</span> i1 <span style="color:#f92672">+</span> <span style="color:#ae81ff">524288</span> <span style="color:#f92672">*</span> i0)
+</span></span><span style="display:flex;"><span>    tmp3 <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>ceil(tmp2)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> tmp1 <span style="color:#f92672">+</span> tmp3
+</span></span></code></pre></div><p>이 시점에 이미 pointwise fusion이 일어난다. GraphLowering이 끝나면 실제 메모리 저장이 있는 Buffer만 남는다.</p>
+<h3 id="63-scheduler--op-융합의-본체">6.3 Scheduler — op 융합의 본체</h3>
+<p>Inductor IR에서 각 Buffer가 하나의 메모리 공간에 대응한다. Scheduler는 두 노드가 <strong>공유 메모리 접근</strong>을 가지면 융합하여 Triton 커널 하나로 합친다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>fuse_node(): fuse_nodes_once()를 10회 루프
+</span></span><span style="display:flex;"><span>└── fuse_nodes_once(): 1회 분의 연산자 융합
+</span></span><span style="display:flex;"><span>    ├── get_possible_fusions(): 융합 가능한 후보 노드 쌍
+</span></span><span style="display:flex;"><span>    │   ├── check_all_pairs: 동일 입력 파라미터 노드끼리 can_fuse 체크
+</span></span><span style="display:flex;"><span>    │   └── score_fusion_key: 점수를 매기고 내림차순 정렬
+</span></span><span style="display:flex;"><span>    ├── 후보 노드 쌍 효과 판단
+</span></span><span style="display:flex;"><span>    │   ├── can_fuse(): 규칙 충족 여부
+</span></span><span style="display:flex;"><span>    │   ├── will_fusion_create_cycle(): 순환 형성 여부
+</span></span><span style="display:flex;"><span>    │   └── speedup_by_fusion(): 환경 변수 시 실측
+</span></span><span style="display:flex;"><span>    └── 정식 연산자 융합
+</span></span></code></pre></div><p><strong><code>can_fuse()</code> 판단 규칙</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>can_fuse() 판단 규칙
+</span></span><span style="display:flex;"><span>├── 기초 판단
+</span></span><span style="display:flex;"><span>│   ├── node1과 node2는 동일 Node일 수 없음
+</span></span><span style="display:flex;"><span>│   ├── ExternKernelSchedulerNode / NopKernelSchedulerNode은 융합 제외 (Template 제외)
+</span></span><span style="display:flex;"><span>│   ├── device가 달라서는 안 됨
+</span></span><span style="display:flex;"><span>│   ├── 공통 데이터 접근이 있어야 함
+</span></span><span style="display:flex;"><span>│   └── 융합 후 노드 수 ≤ config.max_fusion_size (기본 64)
+</span></span><span style="display:flex;"><span>└── 핵심 판단 함수
+</span></span><span style="display:flex;"><span>    ├── 수직 융합 (node2가 node1의 출력에 의존)
+</span></span><span style="display:flex;"><span>    │   ├── Scheduler.can_fuse_vertical: node2 읽기 ⊇ node1 쓰기
+</span></span><span style="display:flex;"><span>    │   └── backend.can_fuse_vertical
+</span></span><span style="display:flex;"><span>    └── 수평 융합 (상호 독립, 동일 입력)
+</span></span><span style="display:flex;"><span>        ├── Scheduler.can_fusion_increase_peak_memory
+</span></span><span style="display:flex;"><span>        └── backend.can_fuse_horizontal
+</span></span></code></pre></div><p><strong><code>score_fusion</code> 점수</strong>:</p>
+<ul>
+<li><code>memory_score</code>: 두 노드가 공유하는 메모리 접근의 크기(읽기/쓰기 인덱스가 완전히 일치해야 카운트)</li>
+<li><code>proximity_score</code>: 그래프 상 토폴로지 거리. 멀리 있는 노드를 융합하면 tensor lifetime이 길어져서 peak memory가 증가하므로 가까운 쌍을 우선</li>
+</ul>
+<p>백엔드(<code>SIMDScheduling.can_fuse()</code>)는 궁극적으로 <strong>&ldquo;이 두 노드를 합친 Triton 커널을 합리적으로 codegen할 수 있느냐&rdquo;</strong> 만 본다. 주로 두 노드의 size가 완전 일치하고 융합 전후 tiling이 동일한지를 체크한다.</p>
+<h3 id="64-세-층위의-연산자-융합">6.4 세 층위의 연산자 융합</h3>
+<p>정리하면 Inductor는 세 층위에서 fusion을 한다:</p>
+<ol>
+<li><strong>FX Graph level</strong>: target이 torch.ops 수준일 때. 조대한 입도의 융합(예: 추론 시 Conv+BN → 새 Conv). 훈련에서는 역전파 함수가 제공되어야 해서 제한적.</li>
+<li><strong>GraphLowering inline</strong>: Pointwise/Reduction의 <code>inner_fn</code> 인라인. 순수 계산의 중간 결과는 저장하지 않고 바로 재사용.</li>
+<li><strong>Inductor IR level (Scheduler)</strong>: 실제 Buffer 간 공유 메모리 기반 융합. 핵심 메모리 절감 포인트.</li>
+</ol>
+<h2 id="7-ml-시스템-엔지니어를-위한-실전-가이드">7. ML 시스템 엔지니어를 위한 실전 가이드</h2>
+<p>여기부터는 공식 튜토리얼이 잘 다루지 않는, 프로덕션에서 밟게 되는 지뢰들이다.</p>
+<h3 id="71-어떤-mode를-언제-쓸-것인가">7.1 어떤 mode를 언제 쓸 것인가</h3>
+<table>
+  <thead>
+      <tr>
+          <th>상황</th>
+          <th>권장 mode</th>
+          <th>이유</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>일반 훈련</td>
+          <td><code>default</code></td>
+          <td>컴파일 비용/메모리 균형</td>
+      </tr>
+      <tr>
+          <td>추론 (지연 민감)</td>
+          <td><code>reduce-overhead</code></td>
+          <td>CUDA Graph로 런치 오버헤드 제거</td>
+      </tr>
+      <tr>
+          <td>추론 (처리량 극한)</td>
+          <td><code>max-autotune</code></td>
+          <td>Triton matmul template autotuning</td>
+      </tr>
+      <tr>
+          <td>다양한 shape 섞임</td>
+          <td><code>default</code> + <code>dynamic=True</code></td>
+          <td>재컴파일 방지</td>
+      </tr>
+  </tbody>
+</table>
+<p><code>reduce-overhead</code>는 <strong>CUDA Graph를 자동으로 붙여준다</strong>. 단, CUDA Graph는 입력 포인터가 매 호출마다 동일해야 하므로, Inductor가 입력을 정적 버퍼로 복사한다. 결과적으로 <strong>메모리 사용량이 증가</strong>하고, batch size가 바뀌면 재캡처 비용이 든다.</p>
+<h3 id="72-첫-컴파일-지연과-캐시">7.2 첫 컴파일 지연과 캐시</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 추론 서버 기동 시 반드시 워밍업</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">3</span>):
+</span></span><span style="display:flex;"><span>    _ <span style="color:#f92672">=</span> compiled_model(sample_input)
+</span></span><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>synchronize()
+</span></span></code></pre></div><p>Inductor는 컴파일 결과를 디스크에 캐시한다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export TORCHINDUCTOR_CACHE_DIR<span style="color:#f92672">=</span>/var/cache/torch_compile
+</span></span></code></pre></div><p>기본은 <code>/tmp/torchinductor_&lt;user&gt;</code>. 컨테이너 배포 시 <strong>볼륨 마운트로 영속화</strong>하면 restart마다 재컴파일이 사라진다. 캐시 키에는 모델 구조, dtype, shape(dynamic 아니면), CUDA/Triton 버전이 들어간다.</p>
+<p>PyTorch 2.3+부터는 FxGraphCache가 더 aggressive하게 재사용되고, 2.4+는 <code>torch._inductor.config.fx_graph_remote_cache = True</code>로 Redis 등 원격 캐시도 가능해졌다.</p>
+<h3 id="73-동적-shape-전략">7.3 동적 shape 전략</h3>
+<p>기본 동작: 첫 호출에서 shape 특화 → 다른 shape 들어오면 <strong>자동으로 dynamic 시도</strong> → 실패 시 재컴파일.</p>
+<p>실무에서는 이 자동 판단이 의도를 못 맞출 때가 있다. 추론 서버처럼 batch size가 들쭉날쭉하면 명시적으로:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>compile(model, dynamic<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span></code></pre></div><p><strong>주의</strong>: shape <code>0</code>과 <code>1</code>은 자동으로 specialize된다(broadcasting 의미 때문). <code>batch=1</code>이 섞이면 별도 컴파일 엔트리가 생긴다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># mark_dynamic으로 특정 차원만 동적화</span>
+</span></span><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>_dynamo<span style="color:#f92672">.</span>mark_dynamic(tensor, <span style="color:#ae81ff">0</span>)  <span style="color:#75715e"># 0번째 dim만 dynamic</span>
+</span></span></code></pre></div><h3 id="74-recompilation-관리">7.4 Recompilation 관리</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export TORCH_LOGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;recompiles&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 또는 더 상세히</span>
+</span></span><span style="display:flex;"><span>export TORCH_LOGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;recompiles_verbose&#34;</span>
+</span></span></code></pre></div><p>이러면 stderr에 어떤 guard가 실패했는지 나온다. 흔한 원인:</p>
+<ul>
+<li>Python int/float 상수가 매번 달라짐 → 해당 인자를 tensor로 바꾸거나 lambda closure로 가둠</li>
+<li>리스트의 len이 매번 달라짐</li>
+<li>nn.Module의 속성이 forward 안에서 수정됨</li>
+<li><code>isinstance</code> 검사 대상이 바뀜</li>
+</ul>
+<p>캐시 한도가 꽉 차면(기본 64) Dynamo가 &ldquo;recompile limit reached&quot;를 찍고 더 이상 컴파일하지 않는다. 크게 잡는 것보다 원인을 없애는 게 정석이지만, 정당한 경우라면:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>_dynamo<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>cache_size_limit <span style="color:#f92672">=</span> <span style="color:#ae81ff">128</span>
+</span></span></code></pre></div><h3 id="75-커스텀-op-등록">7.5 커스텀 op 등록</h3>
+<p>PyTorch 2.4+부터 <code>torch.library.custom_op</code>으로 깔끔하게 등록할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torch <span style="color:#f92672">import</span> Tensor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@torch.library.custom_op</span>(<span style="color:#e6db74">&#34;mylib::fused_mul_add&#34;</span>, mutates_args<span style="color:#f92672">=</span>{})
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fused_mul_add</span>(x: Tensor, y: Tensor, z: float) <span style="color:#f92672">-&gt;</span> Tensor:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">*</span> y <span style="color:#f92672">+</span> z
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@fused_mul_add.register_fake</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_</span>(x, y, z):
+</span></span><span style="display:flex;"><span>    torch<span style="color:#f92672">.</span>_check(x<span style="color:#f92672">.</span>device <span style="color:#f92672">==</span> y<span style="color:#f92672">.</span>device)
+</span></span><span style="display:flex;"><span>    torch<span style="color:#f92672">.</span>_check(x<span style="color:#f92672">.</span>shape <span style="color:#f92672">==</span> y<span style="color:#f92672">.</span>shape)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>empty_like(x)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_backward</span>(ctx, grad):
+</span></span><span style="display:flex;"><span>    x, y <span style="color:#f92672">=</span> ctx<span style="color:#f92672">.</span>saved_tensors
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> grad <span style="color:#f92672">*</span> y, grad <span style="color:#f92672">*</span> x, <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_setup_context</span>(ctx, inputs, output):
+</span></span><span style="display:flex;"><span>    x, y, z <span style="color:#f92672">=</span> inputs
+</span></span><span style="display:flex;"><span>    ctx<span style="color:#f92672">.</span>save_for_backward(x, y)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>torch<span style="color:#f92672">.</span>library<span style="color:#f92672">.</span>register_autograd(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;mylib::fused_mul_add&#34;</span>, _backward, setup_context<span style="color:#f92672">=</span>_setup_context)
+</span></span></code></pre></div><p><code>register_fake</code>은 FakeTensor propagation용 — shape/device 메타데이터를 계산해서 컴파일러가 실제 텐서 없이 그래프 추론을 할 수 있게 해준다. <code>register_autograd</code>가 없으면 역전파 지원이 빠진 채 등록된다.</p>
+<p><strong>주의</strong>: 커스텀 op은 Inductor가 <strong>decompose하지 않고 ExternKernel로 fallback</strong> 처리한다. Scheduler 융합에도 참여하지 않는다. 즉 커스텀 op 자체가 충분히 크고 최적화되어 있어야 한다.</p>
+<h3 id="76-커스텀-fusion-pass">7.6 커스텀 fusion pass</h3>
+<p>Inductor의 post_grad pass 훅에 pattern matcher를 등록해서 자동 치환도 가능하다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> torch._inductor.pattern_matcher <span style="color:#f92672">import</span> PatternMatcherPass, register_replacement
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>my_pass <span style="color:#f92672">=</span> PatternMatcherPass()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">mul_add_pattern</span>(x, y, z):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">*</span> y <span style="color:#f92672">+</span> z
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fused_replacement</span>(x, y, z):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> torch<span style="color:#f92672">.</span>ops<span style="color:#f92672">.</span>mylib<span style="color:#f92672">.</span>fused_mul_add(x, y, z)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>register_replacement(mul_add_pattern, fused_replacement,
+</span></span><span style="display:flex;"><span>                      [torch<span style="color:#f92672">.</span>randn(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>), torch<span style="color:#f92672">.</span>randn(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>), <span style="color:#ae81ff">0.5</span>], <span style="color:#f92672">...</span>,
+</span></span><span style="display:flex;"><span>                      pass_dict<span style="color:#f92672">=</span>my_pass<span style="color:#f92672">.</span>patterns)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Inductor에 pass 등록</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torch._inductor <span style="color:#f92672">import</span> config <span style="color:#66d9ef">as</span> inductor_config
+</span></span><span style="display:flex;"><span>inductor_config<span style="color:#f92672">.</span>post_grad_custom_post_pass <span style="color:#f92672">=</span> my_pass
+</span></span></code></pre></div><p>사용자가 모델 코드를 고치지 않아도 <code>a*b+c</code> 패턴이 자동으로 custom op으로 바뀐다.</p>
+<h3 id="77-aot-inductor--추론-서빙용-aot-컴파일">7.7 AOT Inductor — 추론 서빙용 AOT 컴파일</h3>
+<p>JIT의 한계: 서버 기동 시 워밍업 필요, Python 런타임 의존. 추론 배포에서는 <strong>AOT Inductor</strong>로 미리 <code>.so</code>까지 빌드할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> torch<span style="color:#f92672">.</span>no_grad():
+</span></span><span style="display:flex;"><span>    model<span style="color:#f92672">.</span>eval()
+</span></span><span style="display:flex;"><span>    ep <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>export<span style="color:#f92672">.</span>export(model, example_args)
+</span></span><span style="display:flex;"><span>    path <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>_inductor<span style="color:#f92672">.</span>aot_compile(
+</span></span><span style="display:flex;"><span>        ep<span style="color:#f92672">.</span>module(), example_args,
+</span></span><span style="display:flex;"><span>        options<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;aot_inductor.output_path&#34;</span>: <span style="color:#e6db74">&#34;model.so&#34;</span>}
+</span></span><span style="display:flex;"><span>    )
+</span></span></code></pre></div><p>런타임:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>_export<span style="color:#f92672">.</span>aot_load(<span style="color:#e6db74">&#34;model.so&#34;</span>, <span style="color:#e6db74">&#34;cuda&#34;</span>)
+</span></span><span style="display:flex;"><span>out <span style="color:#f92672">=</span> model(input_tensor)
+</span></span></code></pre></div><ul>
+<li>C++ 런타임이라 Python GIL 없음</li>
+<li>의존성 최소화 (libtorch + model.so)</li>
+<li>TorchServe, vLLM 등에서 이 경로를 점점 표준 경로로 채택 중</li>
+</ul>
+<h3 id="78-분산-훈련과의-상호작용">7.8 분산 훈련과의 상호작용</h3>
+<ul>
+<li><strong>DDP</strong>: 앞에서 본 대로 Dynamo가 bucket 경계에서 자동 break. <code>model = DDP(torch.compile(module))</code> 순서 권장.</li>
+<li><strong>FSDP (FSDP1)</strong>: <code>use_orig_params=True</code>가 필수. Dynamo가 파라미터 access 패턴을 안정적으로 tracing 하려면 필요.</li>
+<li><strong>FSDP2</strong>: PyTorch 2.4+의 새 구현은 compile과의 통합이 더 깔끔하다. <code>torch.distributed._composable.fsdp.fully_shard</code>.</li>
+</ul>
+<h3 id="79-inference_mode-vs-no_grad">7.9 inference_mode vs no_grad</h3>
+<p><code>torch.inference_mode()</code>는 <code>no_grad</code>보다 더 aggressive하지만 Dynamo와 미묘한 상호작용이 있었다(버전마다 다름). 서빙 루프에서는:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">with</span> torch<span style="color:#f92672">.</span>inference_mode():
+</span></span><span style="display:flex;"><span>    out <span style="color:#f92672">=</span> compiled_model(x)
+</span></span></code></pre></div><p>가 일반적으로 권장되지만, 특정 커스텀 op이 inference_mode에서 이상 동작한다면 <code>no_grad</code>로 바꿔보자.</p>
+<h2 id="8-디버깅--프로파일링">8. 디버깅 &amp; 프로파일링</h2>
+<h3 id="81-환경-변수-치트시트">8.1 환경 변수 치트시트</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 기본 디버그 출력</span>
+</span></span><span style="display:flex;"><span>export TORCH_LOGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;+dynamo,+inductor,graph_breaks,recompiles&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 생성된 Triton 코드 보기</span>
+</span></span><span style="display:flex;"><span>export TORCH_LOGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;output_code&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 풀 덤프 (성능 나쁨, 디버그 전용)</span>
+</span></span><span style="display:flex;"><span>export TORCH_COMPILE_DEBUG<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → torch_compile_debug/ 에 FX graph, Inductor IR, Triton 코드가 전부 쌓임</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Dynamo 상세 로그</span>
+</span></span><span style="display:flex;"><span>export TORCHDYNAMO_VERBOSE<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><p><code>TORCH_LOGS</code>는 <code>?</code>로 사용 가능한 아티팩트를 나열할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>TORCH_LOGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;?&#34;</span> python -c <span style="color:#e6db74">&#34;import torch&#34;</span>
+</span></span></code></pre></div><h3 id="82-torch_dynamoexplain">8.2 <code>torch._dynamo.explain</code></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch._dynamo <span style="color:#66d9ef">as</span> dynamo
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>explanation <span style="color:#f92672">=</span> dynamo<span style="color:#f92672">.</span>explain(my_func, <span style="color:#f92672">*</span>sample_inputs)
+</span></span><span style="display:flex;"><span>print(explanation)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># graph break count, 각 서브그래프의 op 리스트, break 원인 등을 보고</span>
+</span></span></code></pre></div><h3 id="83-depyf">8.3 <code>depyf</code></h3>
+<p>생성된 바이트코드를 사람이 읽을 수 있는 Python으로 역컴파일해 주는 도구. Dynamo가 실제로 뭘 만들었는지 보고 싶을 때 최고:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install depyf
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> depyf
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> depyf<span style="color:#f92672">.</span>prepare_debug(<span style="color:#e6db74">&#34;./depyf_dump&#34;</span>):
+</span></span><span style="display:flex;"><span>    compiled_model(x)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ./depyf_dump/에 변환된 Python 코드가 쌓인다</span>
+</span></span></code></pre></div><h3 id="84-성능-측정-올바른-방법">8.4 성능 측정 올바른 방법</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># CUDA 동기 + 반복 평균. 첫 N회는 워밍업으로 버린다.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">bench</span>(fn, iters<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>, warmup<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(warmup):
+</span></span><span style="display:flex;"><span>        fn()
+</span></span><span style="display:flex;"><span>    torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>synchronize()
+</span></span><span style="display:flex;"><span>    start <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>Event(enable_timing<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    end <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>Event(enable_timing<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    start<span style="color:#f92672">.</span>record()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(iters):
+</span></span><span style="display:flex;"><span>        fn()
+</span></span><span style="display:flex;"><span>    end<span style="color:#f92672">.</span>record()
+</span></span><span style="display:flex;"><span>    torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>synchronize()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> start<span style="color:#f92672">.</span>elapsed_time(end) <span style="color:#f92672">/</span> iters
+</span></span></code></pre></div><p><code>time.perf_counter()</code>만 쓰면 CUDA 비동기 때문에 말이 안 되는 숫자가 나온다.</p>
+<h2 id="9-흔한-함정들">9. 흔한 함정들</h2>
+<ul>
+<li><strong><code>print(tensor)</code>는 graph break</strong>. 디버깅용 print는 반드시 제거하고 배포.</li>
+<li><strong><code>.item()</code>, <code>.tolist()</code> 등 host 전송</strong>도 break. loss logging 같은 건 학습 루프의 <code>loss.item()</code> 위치를 벗어나지 않게.</li>
+<li><strong>Python 딕셔너리 키 순회</strong>가 forward에 있으면 key 순서 변경 시 recompile.</li>
+<li><strong>Global 변수 참조</strong>는 가능하면 모듈 속성으로 옮겨라. Global mutation은 특히 위험.</li>
+<li><strong><code>torch.cond</code></strong> (2.3+)가 있다. 데이터 의존 분기를 graph break 없이 캡처하고 싶으면 이걸 써라. 단 두 분기 모두 동일한 output structure여야 함.</li>
+<li><strong>numpy 호출</strong>: <code>torch.compile</code>이 numpy 인터롭을 제한적으로 지원하지만, 의존하면 debug 지옥. 가능하면 torch로 바꾸자.</li>
+<li><strong>nn.Module 속성 추가를 forward에서 금지</strong>. <code>self.cache = ...</code> 같은 건 <code>__init__</code>에서만.</li>
+<li><strong>첫 호출 지연</strong>을 측정값에 포함하지 말 것. 이게 의외로 벤치마크 글들이 자주 틀리는 부분이다.</li>
+</ul>
+<h2 id="10-언제-쓰지-말아야-하는가">10. 언제 쓰지 말아야 하는가</h2>
+<ul>
+<li>호출이 드문 함수 (워밍업 비용 회수 불가)</li>
+<li>shape이 매번 크게 다른 함수 (dynamic도 버거운 수준)</li>
+<li>이미 100% GPU bound에 fusion 여지 없는 단일 거대 matmul</li>
+<li>cuBLAS/cuDNN만으로 충분한 단순 모델 (ResNet-18 정도의 소형 모델은 이득 미미)</li>
+<li>지원이 불안정한 라이브러리와 깊게 얽힌 코드 (scipy의 특정 호출은 여전히 불안정)</li>
+</ul>
+<p>결국 torch.compile이 가장 유용한 곳은:</p>
+<ul>
+<li><strong>메모리 바운드 pointwise/reduction 체인이 많은 모델</strong> (transformer의 attention 주변, LayerNorm/RMSNorm, activation들)</li>
+<li><strong>Python 오버헤드가 큰 자잘한 op 체인</strong> (많은 작은 텐서 조작)</li>
+<li><strong>반복 호출이 많은 추론 서버</strong> (워밍업 비용 분산 가능)</li>
+</ul>
+<h2 id="11-생태계와-앞으로의-방향">11. 생태계와 앞으로의 방향</h2>
+<ul>
+<li><strong><code>torch.export</code></strong>: 2.2+부터 stable. Dynamo로 그래프를 캡처해서 직렬화 가능한 <code>ExportedProgram</code>으로 빼는 경로. ONNX/TensorRT 경로 대비 장점은 &ldquo;PyTorch 코드 그대로 export 되고, fallback 없음&quot;이 기본 보장 가능.</li>
+<li><strong>AOT Inductor</strong>: export한 그래프를 Inductor로 C++/CUDA 코드 생성 후 <code>.so</code>로 빌드. 서빙 경로가 상당히 정리되었다.</li>
+<li><strong>vLLM / SGLang</strong>: 내부적으로 <code>torch.compile</code>을 적극 활용. LLM 서빙에서 attention kernel, sampling, projection을 어떻게 compile/CUDA Graph로 묶느냐가 처리량의 핵심.</li>
+<li><strong>compile-aware 모델 디자인</strong>: graph break를 적극적으로 없애는 스타일의 모델 작성 가이드가 퍼지고 있다. (예: attention mask를 매번 새로 만들지 말고 재사용 가능한 형태로 설계)</li>
+</ul>
+<h2 id="12-정리">12. 정리</h2>
+<p>torch.compile의 핵심은 <strong>네 단계의 변환</strong>이다:</p>
+<ol>
+<li><strong>Dynamo</strong>가 Python 바이트코드에서 FX Graph를 뽑고,</li>
+<li><strong>AOTAutograd</strong>가 joint forward/backward 그래프로 확장하며,</li>
+<li><strong>PrimTorch</strong>가 수천 개 op을 수백 개 primitive로 분해하고,</li>
+<li><strong>Inductor</strong>가 Scheduler로 op을 묶어 Triton/C++ 커널을 생성한다.</li>
+</ol>
+<p>ML 시스템 엔지니어의 일은 이 파이프라인의 <strong>각 경계에서 정보를 뽑고, 재컴파일을 막고, fallback을 줄이고, 캐시를 관리하는 것</strong>이다. 추론 엔지니어라면 추가로 AOT Inductor와 CUDA Graph 경로를 서빙에 맞게 세팅해야 한다.</p>
+<p>공식 문서만 보고는 잡히지 않는 감각들 — &ldquo;이 코드는 왜 매번 recompile되지?&rdquo;, &ldquo;이 graph break는 왜 생겼지?&rdquo;, &ldquo;왜 내 모델은 fusion이 안 되지?&rdquo; — 은 결국 위 네 단계 중 어디에서 무슨 일이 일어나는지를 알아야만 답이 나온다. 가장 빠른 습득 방법은 작은 모델로 <code>TORCH_COMPILE_DEBUG=1</code>을 켜고 한 번 끝까지 읽어보는 것이다.</p>
+<h2 id="참고자료">참고자료</h2>
+<ul>
+<li><a href="https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html">torch.compile 공식 튜토리얼</a></li>
+<li><a href="https://pytorch.org/get-started/pytorch-2.0/">PyTorch 2.0: Get Started</a></li>
+<li><a href="https://depyf.readthedocs.io/en/latest/">depyf — Dynamo를 읽을 수 있게 해주는 도구</a></li>
+<li><a href="https://peps.python.org/pep-0523/">PEP 523 — Frame evaluation API</a></li>
+<li><a href="https://dev-discuss.pytorch.org/t/torchinductor-a-pytorch-native-compiler-with-define-by-run-ir-and-symbolic-shapes/747">TorchInductor 아키텍처 RFC</a></li>
+<li><a href="https://pytorch.org/docs/stable/torch.compiler_aot_inductor.html">AOT Inductor</a></li>
+<li><a href="https://pytorch.org/docs/stable/export.html">torch.export 튜토리얼</a></li>
+<li>본 시리즈 원문(중국어, zhihu.com): <a href="https://zhuanlan.zhihu.com/p/9418379234">1</a>, <a href="https://zhuanlan.zhihu.com/p/9640728231">2</a>, <a href="https://zhuanlan.zhihu.com/p/9997263922">3</a>, <a href="https://zhuanlan.zhihu.com/p/11224299472">4</a>, <a href="https://zhuanlan.zhihu.com/p/21053905491">5</a>, <a href="https://zhuanlan.zhihu.com/p/620163218">6</a>, <a href="https://zhuanlan.zhihu.com/p/855291863">7</a>, <a href="https://zhuanlan.zhihu.com/p/630933479">8</a>, <a href="https://zhuanlan.zhihu.com/p/12712224407">9</a></li>
+</ul>
+
+</article>
+
+
+    <script src="https://utteranc.es/client.js"
+        repo="elwhyjay/blog-comment"
+        issue-term="title"
+        label="✨💬✨"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+            </div>
+        </main>
+        <script>
+            
+            function getEffectiveTheme(theme) {
+              if (theme === 'auto') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+              return theme;
+            }
+
+            function updateIcons(effectiveTheme) {
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = effectiveTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = effectiveTheme === 'dark' ? 'inline' : 'none';
+            }
+
+            function toggleTheme() {
+              const body = document.querySelector('body');
+              const currentTheme = body.getAttribute('a');
+              const effective = getEffectiveTheme(currentTheme);
+              const newTheme = effective === 'dark' ? 'light' : 'dark';
+
+              body.setAttribute('a', newTheme);
+              localStorage.setItem('theme', newTheme);
+              updateIcons(newTheme);
+            }
+
+            
+            document.addEventListener('DOMContentLoaded', () => {
+              const savedTheme = localStorage.getItem('theme');
+              if (savedTheme) {
+                document.querySelector('body').setAttribute('a', savedTheme);
+                updateIcons(savedTheme);
+              } else {
+                
+                updateIcons(getEffectiveTheme('auto'));
+              }
+            });
+        </script>
+    </body>
+</html>

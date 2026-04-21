@@ -28,7 +28,7 @@
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -71,7 +71,7 @@
     });
 
 </script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
  
 </head>
@@ -130,56 +130,56 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Format</th>
-          <th style="text-align: left">Sign</th>
-          <th style="text-align: left">Exp</th>
-          <th style="text-align: left">Mantissa</th>
-          <th style="text-align: left">Bias</th>
-          <th style="text-align: left">Max Value</th>
-          <th style="text-align: left">Min Normal</th>
-          <th style="text-align: left">Precision (ε)</th>
+          <th>Format</th>
+          <th>Sign</th>
+          <th>Exp</th>
+          <th>Mantissa</th>
+          <th>Bias</th>
+          <th>Max Value</th>
+          <th>Min Normal</th>
+          <th>Precision (ε)</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">FP32</td>
-          <td style="text-align: left">1</td>
-          <td style="text-align: left">8</td>
-          <td style="text-align: left">23</td>
-          <td style="text-align: left">127</td>
-          <td style="text-align: left">3.4×10³⁸</td>
-          <td style="text-align: left">1.2×10⁻³⁸</td>
-          <td style="text-align: left">2⁻²⁴</td>
+          <td>FP32</td>
+          <td>1</td>
+          <td>8</td>
+          <td>23</td>
+          <td>127</td>
+          <td>3.4×10³⁸</td>
+          <td>1.2×10⁻³⁸</td>
+          <td>2⁻²⁴</td>
       </tr>
       <tr>
-          <td style="text-align: left">FP16</td>
-          <td style="text-align: left">1</td>
-          <td style="text-align: left">5</td>
-          <td style="text-align: left">10</td>
-          <td style="text-align: left">15</td>
-          <td style="text-align: left">65,504</td>
-          <td style="text-align: left">6.1×10⁻⁵</td>
-          <td style="text-align: left">2⁻¹¹</td>
+          <td>FP16</td>
+          <td>1</td>
+          <td>5</td>
+          <td>10</td>
+          <td>15</td>
+          <td>65,504</td>
+          <td>6.1×10⁻⁵</td>
+          <td>2⁻¹¹</td>
       </tr>
       <tr>
-          <td style="text-align: left">BF16</td>
-          <td style="text-align: left">1</td>
-          <td style="text-align: left">8</td>
-          <td style="text-align: left">7</td>
-          <td style="text-align: left">127</td>
-          <td style="text-align: left">3.4×10³⁸</td>
-          <td style="text-align: left">1.2×10⁻³⁸</td>
-          <td style="text-align: left">2⁻⁸</td>
+          <td>BF16</td>
+          <td>1</td>
+          <td>8</td>
+          <td>7</td>
+          <td>127</td>
+          <td>3.4×10³⁸</td>
+          <td>1.2×10⁻³⁸</td>
+          <td>2⁻⁸</td>
       </tr>
       <tr>
-          <td style="text-align: left">TF32</td>
-          <td style="text-align: left">1</td>
-          <td style="text-align: left">8</td>
-          <td style="text-align: left">10</td>
-          <td style="text-align: left">127</td>
-          <td style="text-align: left">3.4×10³⁸</td>
-          <td style="text-align: left">1.2×10⁻³⁸</td>
-          <td style="text-align: left">2⁻¹¹</td>
+          <td>TF32</td>
+          <td>1</td>
+          <td>8</td>
+          <td>10</td>
+          <td>127</td>
+          <td>3.4×10³⁸</td>
+          <td>1.2×10⁻³⁸</td>
+          <td>2⁻¹¹</td>
       </tr>
   </tbody>
 </table>
@@ -193,30 +193,30 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Format</th>
-          <th style="text-align: left">Max Value</th>
-          <th style="text-align: left">Min Normal</th>
-          <th style="text-align: left">Precision</th>
-          <th style="text-align: left">Special Values</th>
-          <th style="text-align: left">Primary Use</th>
+          <th>Format</th>
+          <th>Max Value</th>
+          <th>Min Normal</th>
+          <th>Precision</th>
+          <th>Special Values</th>
+          <th>Primary Use</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">FP8 E4M3</td>
-          <td style="text-align: left">±448</td>
-          <td style="text-align: left">0.0156</td>
-          <td style="text-align: left">2⁻⁴</td>
-          <td style="text-align: left">No ∞, limited NaN</td>
-          <td style="text-align: left">Forward pass</td>
+          <td>FP8 E4M3</td>
+          <td>±448</td>
+          <td>0.0156</td>
+          <td>2⁻⁴</td>
+          <td>No ∞, limited NaN</td>
+          <td>Forward pass</td>
       </tr>
       <tr>
-          <td style="text-align: left">FP8 E5M2</td>
-          <td style="text-align: left">±57,344</td>
-          <td style="text-align: left">6.1×10⁻⁵</td>
-          <td style="text-align: left">2⁻³</td>
-          <td style="text-align: left">IEEE-compliant</td>
-          <td style="text-align: left">Backward pass</td>
+          <td>FP8 E5M2</td>
+          <td>±57,344</td>
+          <td>6.1×10⁻⁵</td>
+          <td>2⁻³</td>
+          <td>IEEE-compliant</td>
+          <td>Backward pass</td>
       </tr>
   </tbody>
 </table>
@@ -235,46 +235,46 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Format</th>
-          <th style="text-align: left">Element Format</th>
-          <th style="text-align: left">Element Bits</th>
-          <th style="text-align: left">Block Size</th>
-          <th style="text-align: left">Scale Format</th>
-          <th style="text-align: left">Effective bits/value</th>
+          <th>Format</th>
+          <th>Element Format</th>
+          <th>Element Bits</th>
+          <th>Block Size</th>
+          <th>Scale Format</th>
+          <th>Effective bits/value</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">MXFP8</td>
-          <td style="text-align: left">E4M3 or E5M2</td>
-          <td style="text-align: left">8</td>
-          <td style="text-align: left">32</td>
-          <td style="text-align: left">E8M0 (8-bit)</td>
-          <td style="text-align: left">8.25</td>
+          <td>MXFP8</td>
+          <td>E4M3 or E5M2</td>
+          <td>8</td>
+          <td>32</td>
+          <td>E8M0 (8-bit)</td>
+          <td>8.25</td>
       </tr>
       <tr>
-          <td style="text-align: left">MXFP6</td>
-          <td style="text-align: left">E3M2 or E2M3</td>
-          <td style="text-align: left">6</td>
-          <td style="text-align: left">32</td>
-          <td style="text-align: left">E8M0 (8-bit)</td>
-          <td style="text-align: left">6.25</td>
+          <td>MXFP6</td>
+          <td>E3M2 or E2M3</td>
+          <td>6</td>
+          <td>32</td>
+          <td>E8M0 (8-bit)</td>
+          <td>6.25</td>
       </tr>
       <tr>
-          <td style="text-align: left">MXFP4</td>
-          <td style="text-align: left">E2M1</td>
-          <td style="text-align: left">4</td>
-          <td style="text-align: left">32</td>
-          <td style="text-align: left">E8M0 (8-bit)</td>
-          <td style="text-align: left">4.25</td>
+          <td>MXFP4</td>
+          <td>E2M1</td>
+          <td>4</td>
+          <td>32</td>
+          <td>E8M0 (8-bit)</td>
+          <td>4.25</td>
       </tr>
       <tr>
-          <td style="text-align: left">MXINT8</td>
-          <td style="text-align: left">INT8</td>
-          <td style="text-align: left">8</td>
-          <td style="text-align: left">32</td>
-          <td style="text-align: left">E8M0 (8-bit)</td>
-          <td style="text-align: left">8.25</td>
+          <td>MXINT8</td>
+          <td>INT8</td>
+          <td>8</td>
+          <td>32</td>
+          <td>E8M0 (8-bit)</td>
+          <td>8.25</td>
       </tr>
   </tbody>
 </table>
@@ -287,31 +287,31 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Data Type</th>
-          <th style="text-align: left">Dense TFLOPS</th>
-          <th style="text-align: left">Sparse TFLOPS (2:4)</th>
+          <th>Data Type</th>
+          <th>Dense TFLOPS</th>
+          <th>Sparse TFLOPS (2:4)</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">TF32</td>
-          <td style="text-align: left">156</td>
-          <td style="text-align: left">312</td>
+          <td>TF32</td>
+          <td>156</td>
+          <td>312</td>
       </tr>
       <tr>
-          <td style="text-align: left">BF16/FP16</td>
-          <td style="text-align: left">312</td>
-          <td style="text-align: left">624</td>
+          <td>BF16/FP16</td>
+          <td>312</td>
+          <td>624</td>
       </tr>
       <tr>
-          <td style="text-align: left">INT8</td>
-          <td style="text-align: left">624 TOPS</td>
-          <td style="text-align: left">1,248 TOPS</td>
+          <td>INT8</td>
+          <td>624 TOPS</td>
+          <td>1,248 TOPS</td>
       </tr>
       <tr>
-          <td style="text-align: left">INT4</td>
-          <td style="text-align: left">1,248 TOPS</td>
-          <td style="text-align: left">2,496 TOPS</td>
+          <td>INT4</td>
+          <td>1,248 TOPS</td>
+          <td>2,496 TOPS</td>
       </tr>
   </tbody>
 </table>
@@ -323,31 +323,31 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Data Type</th>
-          <th style="text-align: left">Dense TFLOPS</th>
-          <th style="text-align: left">Sparse TFLOPS (2:4)</th>
+          <th>Data Type</th>
+          <th>Dense TFLOPS</th>
+          <th>Sparse TFLOPS (2:4)</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">TF32</td>
-          <td style="text-align: left">500</td>
-          <td style="text-align: left">1,000</td>
+          <td>TF32</td>
+          <td>500</td>
+          <td>1,000</td>
       </tr>
       <tr>
-          <td style="text-align: left">BF16/FP16</td>
-          <td style="text-align: left">1,000</td>
-          <td style="text-align: left">2,000</td>
+          <td>BF16/FP16</td>
+          <td>1,000</td>
+          <td>2,000</td>
       </tr>
       <tr>
-          <td style="text-align: left">FP8</td>
-          <td style="text-align: left">2,000</td>
-          <td style="text-align: left">4,000</td>
+          <td>FP8</td>
+          <td>2,000</td>
+          <td>4,000</td>
       </tr>
       <tr>
-          <td style="text-align: left">INT8</td>
-          <td style="text-align: left">2,000 TOPS</td>
-          <td style="text-align: left">4,000 TOPS</td>
+          <td>INT8</td>
+          <td>2,000 TOPS</td>
+          <td>4,000 TOPS</td>
       </tr>
   </tbody>
 </table>
@@ -358,31 +358,31 @@
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Data Type</th>
-          <th style="text-align: left">Dense TFLOPS</th>
-          <th style="text-align: left">Sparse TFLOPS (2:4)</th>
+          <th>Data Type</th>
+          <th>Dense TFLOPS</th>
+          <th>Sparse TFLOPS (2:4)</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">TF32</td>
-          <td style="text-align: left">1,200</td>
-          <td style="text-align: left">2,250</td>
+          <td>TF32</td>
+          <td>1,200</td>
+          <td>2,250</td>
       </tr>
       <tr>
-          <td style="text-align: left">BF16/FP16</td>
-          <td style="text-align: left">2,250</td>
-          <td style="text-align: left">4,500</td>
+          <td>BF16/FP16</td>
+          <td>2,250</td>
+          <td>4,500</td>
       </tr>
       <tr>
-          <td style="text-align: left">FP8/FP6</td>
-          <td style="text-align: left">4,500</td>
-          <td style="text-align: left">9,000</td>
+          <td>FP8/FP6</td>
+          <td>4,500</td>
+          <td>9,000</td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>FP4</strong></td>
-          <td style="text-align: left">9,000</td>
-          <td style="text-align: left">18,000</td>
+          <td><strong>FP4</strong></td>
+          <td>9,000</td>
+          <td>18,000</td>
       </tr>
   </tbody>
 </table>
@@ -422,43 +422,43 @@ $$\delta_F = -\frac{[H^{-1}]_{:q}}{[H^{-1}]_{qq}} \cdot (\operatorname{quant}(w_
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Method</th>
-          <th style="text-align: left">Draft Accuracy</th>
-          <th style="text-align: left">Typical Speedup</th>
-          <th style="text-align: left">Architecture</th>
+          <th>Method</th>
+          <th>Draft Accuracy</th>
+          <th>Typical Speedup</th>
+          <th>Architecture</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">Standard Speculative</td>
-          <td style="text-align: left">0.4-0.6</td>
-          <td style="text-align: left">1.5-2×</td>
-          <td style="text-align: left">Separate draft model</td>
+          <td>Standard Speculative</td>
+          <td>0.4-0.6</td>
+          <td>1.5-2×</td>
+          <td>Separate draft model</td>
       </tr>
       <tr>
-          <td style="text-align: left">Medusa</td>
-          <td style="text-align: left">~0.6</td>
-          <td style="text-align: left">~2×</td>
-          <td style="text-align: left">Multiple prediction heads</td>
+          <td>Medusa</td>
+          <td>~0.6</td>
+          <td>~2×</td>
+          <td>Multiple prediction heads</td>
       </tr>
       <tr>
-          <td style="text-align: left">EAGLE</td>
-          <td style="text-align: left">~0.8</td>
-          <td style="text-align: left">2-3×</td>
-          <td style="text-align: left">Feature-level prediction</td>
+          <td>EAGLE</td>
+          <td>~0.8</td>
+          <td>2-3×</td>
+          <td>Feature-level prediction</td>
       </tr>
       <tr>
-          <td style="text-align: left">EAGLE-3</td>
-          <td style="text-align: left">Higher</td>
-          <td style="text-align: left">Up to 6.5×</td>
-          <td style="text-align: left">Multi-layer fusion</td>
+          <td>EAGLE-3</td>
+          <td>Higher</td>
+          <td>Up to 6.5×</td>
+          <td>Multi-layer fusion</td>
       </tr>
   </tbody>
 </table>
 <h2 id="프레임워크-생태계를-통한-실전-배포">프레임워크 생태계를 통한 실전 배포</h2>
 <h3 id="torchao-pytorch-네이티브-양자화">TorchAO: PyTorch 네이티브 양자화</h3>
 <p>TorchAO는 커널 융합을 위해 <code>torch.compile</code>과 직접 통합된다:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> torchao.quantization <span style="color:#f92672">import</span> quantize_, Int4WeightOnlyConfig
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> torchao.quantization <span style="color:#f92672">import</span> quantize_, Int4WeightOnlyConfig
 </span></span><span style="display:flex;"><span>quantize_(model, Int4WeightOnlyConfig(group_size<span style="color:#f92672">=</span><span style="color:#ae81ff">32</span>))
 </span></span></code></pre></div><p>INT4/INT8 가중치 전용, FP8 동적 양자화 및 QAT 워크플로우를 지원한다. 성능: Llama-3-8B에서 INT4 + 2:4 희소성은 67.7%의 메모리 감소와 함께 2.37배의 처리량을 달성한다.</p>
 <h3 id="vllm-및-sglang-서빙-처리량-최적화">vLLM 및 SGLang: 서빙 처리량 최적화</h3>
@@ -469,26 +469,26 @@ $$\delta_F = -\frac{[H^{-1}]_{:q}}{[H^{-1}]_{qq}} \cdot (\operatorname{quant}(w_
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Batch Size</th>
-          <th style="text-align: left">Bottleneck</th>
-          <th style="text-align: left">Recommended Format</th>
+          <th>Batch Size</th>
+          <th>Bottleneck</th>
+          <th>Recommended Format</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">≤4</td>
-          <td style="text-align: left">Memory bandwidth</td>
-          <td style="text-align: left">INT4 weight-only (AWQ)</td>
+          <td>≤4</td>
+          <td>Memory bandwidth</td>
+          <td>INT4 weight-only (AWQ)</td>
       </tr>
       <tr>
-          <td style="text-align: left">5-15</td>
-          <td style="text-align: left">Mixed</td>
-          <td style="text-align: left">FP8 or INT8 SmoothQuant</td>
+          <td>5-15</td>
+          <td>Mixed</td>
+          <td>FP8 or INT8 SmoothQuant</td>
       </tr>
       <tr>
-          <td style="text-align: left">≥16</td>
-          <td style="text-align: left">Compute + Memory</td>
-          <td style="text-align: left">FP8 (W8A8)</td>
+          <td>≥16</td>
+          <td>Compute + Memory</td>
+          <td>FP8 (W8A8)</td>
       </tr>
   </tbody>
 </table>
@@ -497,36 +497,36 @@ $$\delta_F = -\frac{[H^{-1}]_{:q}}{[H^{-1}]_{qq}} \cdot (\operatorname{quant}(w_
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Type</th>
-          <th style="text-align: left">Size (7B)</th>
-          <th style="text-align: left">Perplexity Increase</th>
-          <th style="text-align: left">Recommendation</th>
+          <th>Type</th>
+          <th>Size (7B)</th>
+          <th>Perplexity Increase</th>
+          <th>Recommendation</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">Q8_0</td>
-          <td style="text-align: left">8.54 GB</td>
-          <td style="text-align: left">Minimal</td>
-          <td style="text-align: left">Maximum quality</td>
+          <td>Q8_0</td>
+          <td>8.54 GB</td>
+          <td>Minimal</td>
+          <td>Maximum quality</td>
       </tr>
       <tr>
-          <td style="text-align: left">Q5_K_M</td>
-          <td style="text-align: left">5.73 GB</td>
-          <td style="text-align: left">+0.035</td>
-          <td style="text-align: left">Quality/size balance</td>
+          <td>Q5_K_M</td>
+          <td>5.73 GB</td>
+          <td>+0.035</td>
+          <td>Quality/size balance</td>
       </tr>
       <tr>
-          <td style="text-align: left">Q4_K_M</td>
-          <td style="text-align: left">4.92 GB</td>
-          <td style="text-align: left">+0.054</td>
-          <td style="text-align: left">Default choice</td>
+          <td>Q4_K_M</td>
+          <td>4.92 GB</td>
+          <td>+0.054</td>
+          <td>Default choice</td>
       </tr>
       <tr>
-          <td style="text-align: left">Q3_K_M</td>
-          <td style="text-align: left">4.02 GB</td>
-          <td style="text-align: left">+0.244</td>
-          <td style="text-align: left">Memory-constrained</td>
+          <td>Q3_K_M</td>
+          <td>4.02 GB</td>
+          <td>+0.244</td>
+          <td>Memory-constrained</td>
       </tr>
   </tbody>
 </table>
@@ -553,30 +553,30 @@ $$\delta_F = -\frac{[H^{-1}]_{:q}}{[H^{-1}]_{qq}} \cdot (\operatorname{quant}(w_
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Model</th>
-          <th style="text-align: left">FP16</th>
-          <th style="text-align: left">INT8</th>
-          <th style="text-align: left">INT4 (AWQ)</th>
+          <th>Model</th>
+          <th>FP16</th>
+          <th>INT8</th>
+          <th>INT4 (AWQ)</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">Llama 3.1-8B</td>
-          <td style="text-align: left">~16 GB</td>
-          <td style="text-align: left">~8 GB</td>
-          <td style="text-align: left">~4 GB</td>
+          <td>Llama 3.1-8B</td>
+          <td>~16 GB</td>
+          <td>~8 GB</td>
+          <td>~4 GB</td>
       </tr>
       <tr>
-          <td style="text-align: left">Llama 3.1-70B</td>
-          <td style="text-align: left">~140 GB</td>
-          <td style="text-align: left">~70 GB</td>
-          <td style="text-align: left">~35 GB</td>
+          <td>Llama 3.1-70B</td>
+          <td>~140 GB</td>
+          <td>~70 GB</td>
+          <td>~35 GB</td>
       </tr>
       <tr>
-          <td style="text-align: left">Llama 3.1-405B</td>
-          <td style="text-align: left">~810 GB</td>
-          <td style="text-align: left">~405 GB</td>
-          <td style="text-align: left">~203 GB</td>
+          <td>Llama 3.1-405B</td>
+          <td>~810 GB</td>
+          <td>~405 GB</td>
+          <td>~203 GB</td>
       </tr>
   </tbody>
 </table>
