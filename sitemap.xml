@@ -2,25 +2,40 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://elwhyjay.github.io/tags/cuda-graph/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/inference/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/llm-serving/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/mlops/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/pinned/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/post/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/speculative-decoding/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/tags/vllm/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>https://elwhyjay.github.io/post/vllm_deep_dive/</loc>
+    <lastmod>2026-09-14T17:00:00+09:00</lastmod>
+  </url><url>
     <loc>https://elwhyjay.github.io/tags/aotautograd/</loc>
     <lastmod>2026-04-21T14:00:00+09:00</lastmod>
   </url><url>
-    <loc>https://elwhyjay.github.io/tags/inference/</loc>
-    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/tags/mlops/</loc>
-    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/tags/pinned/</loc>
-    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/post/</loc>
-    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
-  </url><url>
     <loc>https://elwhyjay.github.io/tags/pytorch/</loc>
-    <lastmod>2026-04-21T14:00:00+09:00</lastmod>
-  </url><url>
-    <loc>https://elwhyjay.github.io/tags/</loc>
     <lastmod>2026-04-21T14:00:00+09:00</lastmod>
   </url><url>
     <loc>https://elwhyjay.github.io/tags/torch.compile/</loc>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<style>
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: 0px solid ;
+      border-color: none;
+      border-radius: 60%;
+      z-index: 1000;
+      color: inherit;
+    }
+</style>
+
+<html lang="ko-kr"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google-site-verification" content="CGHN0W7w6iWZ8ggs2E8eQ_Wiq1IuSxJHXr-KLZIetgk" />
+   <meta name="description" content="
+TL;DR
+vLLM V1 엔진은 프론트엔드 · 엔진 코어 · 워커의 세 프로세스로 쪼개져 있고, 요청 하나가 토큰으로
+나오기까지 그 경계를 여러 번 넘나든다. 이 글은 그 경로를 개요 한 장과 상세 여섯 장의 다이어그램으로
+따라가면서, 스케줄러가 한 스텝에서 무엇을 결정하는지 · CUDA Graph가 언제 붙고 언제 떨어지는지 ·
+어느 모델 러너가 선택되는지를 정리한다.
+본 글은 vLLM 커밋 dc36fcc 기준이다. 다이어그램은 각각 단독 페이지로도 열 수 있으며, 전체 목록은
+vLLM 엔진 다이어그램에 모아두었다.">  
+  
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXXYQPDYLX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YXXYQPDYLX');
+        }
+      </script>
+
+  <title>
+    
+      vLLM 톺아보기
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.f851b574c8f7f906d9d8e9911c9f189f9b2b655d6dbfe90426404861dda3c29ad933703258e46b8085fa1e0ae0c2adec82bb65ffa00743e4b4bccae949802b2d.css" integrity="sha512-&#43;FG1dMj3&#43;QbZ2OmRHJ8Yn5srZV1tv&#43;kEJkBIYd2jwprZM3AyWORrgIX6Hgrgwq3sgrtl/6AHQ&#43;S0vMrpSYArLQ==" />
+  
+</head>
+<body a="auto">
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <span class="light-icon">
+                <svg id="light-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            </span>
+            <span class="dark-icon" style="display:none">
+                <svg id="dark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </span>
+            
+            
+        </button>
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">..</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2026-09-14 17:00:00 &#43;0900 KST">
+            2026-09-14
+        </time>
+    </p>
+
+    <h1>vLLM 톺아보기</h1>
+
+    
+        <aside  class="toc" >
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#0-왜-vllm-내부를-봐야-하는가">0. 왜 vLLM 내부를 봐야 하는가</a></li>
+    <li><a href="#1-큰-그림-v1-엔진-실행-흐름">1. 큰 그림: V1 엔진 실행 흐름</a></li>
+    <li><a href="#2-엔진-기동-시퀀스">2. 엔진 기동 시퀀스</a></li>
+    <li><a href="#3-스케줄러-한-스텝">3. 스케줄러 한 스텝</a></li>
+    <li><a href="#4-speculative-decoding-순환">4. Speculative Decoding 순환</a></li>
+    <li><a href="#5-그래프-모드가-갈리는-지점">5. 그래프 모드가 갈리는 지점</a></li>
+    <li><a href="#6-cuda-graph-디스패치">6. CUDA Graph 디스패치</a></li>
+    <li><a href="#7-모델-러너-v1v2-선택">7. 모델 러너 V1/V2 선택</a>
+      <ul>
+        <li><a href="#v1--v2-지원-범위">V1 / V2 지원 범위</a></li>
+      </ul>
+    </li>
+    <li><a href="#8-정리">8. 정리</a></li>
+  </ul>
+</nav>
+        </aside>
+    
+
+    <blockquote>
+<p><strong>TL;DR</strong>
+vLLM V1 엔진은 프론트엔드 · 엔진 코어 · 워커의 세 프로세스로 쪼개져 있고, 요청 하나가 토큰으로
+나오기까지 그 경계를 여러 번 넘나든다. 이 글은 그 경로를 개요 한 장과 상세 여섯 장의 다이어그램으로
+따라가면서, 스케줄러가 한 스텝에서 무엇을 결정하는지 · CUDA Graph가 언제 붙고 언제 떨어지는지 ·
+어느 모델 러너가 선택되는지를 정리한다.</p>
+<p>본 글은 vLLM 커밋 <code>dc36fcc</code> 기준이다. 다이어그램은 각각 단독 페이지로도 열 수 있으며, 전체 목록은
+<a href="/vllm/">vLLM 엔진 다이어그램</a>에 모아두었다.</p>
+</blockquote>
+<h2 id="0-왜-vllm-내부를-봐야-하는가">0. 왜 vLLM 내부를 봐야 하는가</h2>
+<p>서빙 프레임워크는 대개 블랙박스로 두고 처리량 숫자만 본다. 그런데 실제로 튜닝을 하다 보면
+<code>max_num_batched_tokens</code>를 올렸는데 처리량이 안 오르거나, <code>enforce_eager=False</code>인데 CUDA Graph가
+안 잡히거나, speculative decoding을 켰는데 오히려 느려지는 상황을 만난다.</p>
+<p>이런 건 설정값 표를 아무리 봐도 답이 안 나온다. <strong>어떤 판정이 어느 시점에 일어나는지</strong>를 알아야
+한다. 기동 시 한 번 정해지는 것, 매 스텝 다시 정해지는 것, 환경변수로 못 바꾸는 것이 각각 다르기
+때문이다. 아래 다이어그램들은 그 경계를 드러내는 걸 목표로 그렸다.</p>
+<h2 id="1-큰-그림-v1-엔진-실행-흐름">1. 큰 그림: V1 엔진 실행 흐름</h2>
+<p>요청이 들어와 토큰이 스트리밍되어 나가기까지, 세 프로세스 경계를 넘나드는 왕복 경로.</p>
+<style>
+ 
+.diagram-embed {
+  width: min(1040px, 94vw);
+  margin: 2rem 0 2rem 50%;
+  transform: translateX(-50%);
+}
+.diagram-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 380px;
+  border: thin solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color-scheme: light dark;
+}
+.diagram-embed figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  text-align: center;
+  opacity: 0.6;
+}
+</style>
+<figure class="diagram-embed">
+  <iframe src="/vllm/engine-flow.html?embed=1" title="V1 엔진 실행 흐름" loading="lazy"
+          style="aspect-ratio: 1360 / 850;"></iframe>
+  <figcaption>V1 엔진 실행 흐름 · <a href="/vllm/engine-flow.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>프로세스는 셋으로 나뉜다.</p>
+<ul>
+<li><strong>프론트엔드 (P0)</strong> — <code>AsyncLLM</code> / <code>LLMEngine</code>이 요청을 받고, <code>InputProcessor</code>가 토큰화와 멀티모달
+전처리를 한다. 나갈 때는 <code>OutputProcessor</code>가 detokenize와 정지 조건을 처리한다.</li>
+<li><strong>엔진 코어 (P1)</strong> — <code>EngineCoreProc</code>의 <code>run_busy_loop()</code>이 계속 <code>step()</code>을 돌린다. 그 안에
+<code>Scheduler</code>와 <code>KVCacheManager</code>가 있다.</li>
+<li><strong>워커</strong> — TP × PP 랭크마다 하나씩. <code>GPUModelRunner</code>가 입력 준비 → forward → 샘플링을 맡고,
+paged KV cache가 GPU HBM에 올라가 있다.</li>
+</ul>
+<p>경계를 넘는 수단이 서로 다르다는 점이 중요하다. P0 ↔ P1은 <strong>ZMQ 소켓 + msgpack</strong>(<code>EngineCoreRequest</code>
+가 들어가고 <code>EngineCoreOutputs</code>가 나온다)이고, P1 → 워커는 <code>rpc_broadcast_mq</code>로 <code>execute_model</code>을
+전 랭크에 브로드캐스트한 뒤 <code>worker_response_mq</code>로 <code>ModelRunnerOutput</code>을 받는다.</p>
+<p>결국 한 스텝은 <code>schedule()</code> → <code>execute_model()</code> → <code>update_from_output()</code>의 반복이다. 아래 절들은
+이 세 구간을 하나씩 확대한 그림이다.</p>
+<h2 id="2-엔진-기동-시퀀스">2. 엔진 기동 시퀀스</h2>
+<p>서빙이 시작되기 전까지. 워커 기동부터 KV 캐시 블록 수가 정해지기까지의 호출 순서.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/engine-startup.html?embed=1" title="엔진 기동 시퀀스" loading="lazy"
+          style="aspect-ratio: 1060 / 730;"></iframe>
+  <figcaption>엔진 기동 시퀀스 · <a href="/vllm/engine-startup.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>순서에 제약이 하나 있다. <strong>가중치를 먼저 올려야 KV 캐시에 쓸 메모리를 잴 수 있다.</strong>
+<code>WorkerProc</code> 기동 → <code>init_device()</code> → <code>load_model()</code>까지 끝난 뒤에야 <code>profile_run()</code>이 더미 배치를
+한 번 흘려서 피크 사용량을 재고, 남는 메모리에서 블록 수를 역산한다.</p>
+<p>블록 수가 확정된 다음에 워커가 실제 KV 텐서를 잡고, 컴파일과 그래프 캡처가 이어진다. 기동이 느리게
+느껴지는 구간은 대부분 여기다 — 그리고 이건 한 번만 일어난다.</p>
+<h2 id="3-스케줄러-한-스텝">3. 스케줄러 한 스텝</h2>
+<p>1절 개요의 Scheduler 구간을 확대한 그림. <code>schedule()</code>이 한 스텝에서 토큰 예산을 어떻게 나누는지.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/scheduler-step.html?embed=1" title="스케줄러 한 스텝" loading="lazy"
+          style="aspect-ratio: 1210 / 678;"></iframe>
+  <figcaption>스케줄러 한 스텝 · <a href="/vllm/scheduler-step.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>한 스텝에는 토큰 예산(스텝당 토큰 상한)이 있고, 스케줄러는 이걸 두 번에 걸쳐 나눠 쓴다.</p>
+<ol>
+<li><strong>RUNNING 큐 먼저</strong> — 진행 중인 디코드와 프리필에 배분한다. 각 요청마다 <code>num_new_tokens</code>를
+산정하고 <code>allocate_slots()</code>로 블록을 잡는다.</li>
+<li><strong>남은 예산으로 WAITING 큐</strong> — 새 요청의 프리필. <code>get_computed_blocks()</code>로 프리픽스 캐시
+히트분을 빼고, 남은 <code>token_budget</code>까지만 잘라서(청크 프리필) 넣는다. <code>max_num_seqs</code>와
+<code>max_loras</code> 상한도 여기서 걸린다.</li>
+</ol>
+<p>예외 경로가 하나 있다. <code>allocate_slots()</code>가 실패하면 — 블록이 모자라면 — 최저 우선순위 요청을
+<strong>선점</strong>해서 블록을 해제하고 재시도한다. 그리고 <strong>선점이 한 번이라도 일어났으면 그 스텝의 WAITING
+순회는 통째로 건너뛴다.</strong> 이미 블록이 모자란 판에 새 요청을 더 받지 않겠다는 것이다.</p>
+<p>메모리 압박이 있을 때 새 요청의 TTFT가 갑자기 튀는 현상은 대개 이 분기 때문이다.</p>
+<h2 id="4-speculative-decoding-순환">4. Speculative Decoding 순환</h2>
+<p>draft가 한 스텝에 만들어져 다음 스텝에 검증되는 순환. 제안기 종류와 무관한 공통 골격.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/spec-decode.html?embed=1" title="Speculative Decoding 순환" loading="lazy"
+          style="aspect-ratio: 1000 / 650;"></iframe>
+  <figcaption>Speculative Decoding 순환 · <a href="/vllm/spec-decode.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>헷갈리기 쉬운 지점은 <strong>draft를 만드는 스텝과 검증하는 스텝이 같지 않다</strong>는 것이다. 이번 스텝의 입력에
+이미 지난 스텝이 만들어둔 draft가 섞여 들어가 있고, forward 한 번으로 그 draft를 검증하면서 동시에
+다음 draft의 재료를 얻는다.</p>
+<p>스텝 경계에서 두 가지가 정리된다. 거부된 토큰 수만큼 <code>num_computed_tokens</code>를 되감고, 새로 만든
+draft를 요청에 붙인다. 블록 할당 쪽에서는 <code>num_lookahead_tokens</code>로 draft가 들어갈 KV 자리를 미리
+잡아둔다 — 검증 후에 자리가 없으면 곤란하기 때문이다.</p>
+<p>이 골격은 ngram이든 EAGLE이든 MTP든 동일하고, 제안기마다 다른 건 &ldquo;다음 draft 제안&rdquo; 상자의 내부다.</p>
+<h2 id="5-그래프-모드가-갈리는-지점">5. 그래프 모드가 갈리는 지점</h2>
+<p>엔진 전반에서 FULL · PIECEWISE · NONE이 어디서 갈라지는지. 설정 → 백엔드 능력 → 배치별 조회의 세 단계.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/graph-mode-split.html?embed=1" title="그래프 모드가 갈리는 지점" loading="lazy"
+          style="aspect-ratio: 1193 / 802;"></iframe>
+  <figcaption>그래프 모드가 갈리는 지점 · <a href="/vllm/graph-mode-split.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>판정이 한 곳에서 끝나지 않고 세 단계로 나뉜다.</p>
+<ol>
+<li><strong>설정</strong> — <code>torch.compile</code>을 쓰지 않으면 <code>splitting_ops</code>가 비어서 PIECEWISE 자체가 성립하지 않는다.
+그래프를 쪼갤 지점이 없기 때문이다.</li>
+<li><strong>백엔드 능력</strong> — 어텐션 그룹 중 <strong>가장 약한</strong> 백엔드의 <code>min_cg_support</code>가 상한을 정한다. 백엔드
+하나가 못 따라오면 전체가 거기에 맞춰 내려간다.</li>
+<li><strong>배치마다</strong> — 같은 설정이어도 배치 모양에 따라 매 스텝 다시 갈린다.</li>
+</ol>
+<p>&ldquo;설정은 FULL로 줬는데 왜 안 걸리지&quot;의 답은 보통 2번 아니면 3번이다. 1·2번은 기동 시 한 번 정해지고,
+3번은 매 스텝 다시 판정된다는 차이를 기억해두면 로그를 읽기 쉬워진다.</p>
+<p><code>torch.compile</code> 쪽 배경은 이전 글 <a href="/post/torch_compile_deep_dive/">torch.compile 탐구생활</a>에 정리해뒀다.</p>
+<h2 id="6-cuda-graph-디스패치">6. CUDA Graph 디스패치</h2>
+<p>1절 흐름의 <code>GPUModelRunner</code> 구간을 확대한 그림. 그래프를 언제 캡처하고 언제 eager로 떨어지는지.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/cudagraph-dispatch.html?embed=1" title="CUDA Graph 디스패치" loading="lazy"
+          style="aspect-ratio: 1235 / 802;"></iframe>
+  <figcaption>CUDA Graph 디스패치 · <a href="/vllm/cudagraph-dispatch.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>앞 절의 판정이 실제로 실행되는 자리다. 기동 시 한 번 컴파일 · 커널 워밍업 · 그래프 캡처를 해두고,
+런타임에는 매 스텝 배치 서술자를 만들어 캡처해둔 키와 대조한다. 맞는 키가 있으면 그 그래프를 재생하고,
+없으면 FULL → PIECEWISE → NONE 순으로 내려간다. NONE까지 가면 eager 실행이다.</p>
+<p>드래프터(speculative decoding의 제안기)는 자체 그래프를 따로 잡는데, 그 키는 target 모드에서
+파생된다. V1과 V2 러너에서 파생 방식이 달라서, spec decoding을 쓰면서 러너가 바뀌면 그래프가
+잡히는 모양도 같이 바뀐다.</p>
+<h2 id="7-모델-러너-v1v2-선택">7. 모델 러너 V1/V2 선택</h2>
+<p>내 설정이면 어느 러너를 쓰는지. <code>use_v2_model_runner</code>의 판정 순서.</p>
+
+<figure class="diagram-embed">
+  <iframe src="/vllm/model-runner-gate.html?embed=1" title="모델 러너 V1/V2 선택" loading="lazy"
+          style="aspect-ratio: 1191 / 678;"></iframe>
+  <figcaption>모델 러너 V1/V2 선택 · <a href="/vllm/model-runner-gate.html" target="_blank" rel="noopener">전체 화면으로 보기 ↗</a></figcaption>
+</figure>
+
+<p>판정 순서가 위에서부터 내려온다.</p>
+<ul>
+<li><strong>강제 경로</strong> — HiSparse와 워터마킹은 V2 고정이다. 환경변수로 끌 수 없다.</li>
+<li><strong>명시 지정</strong> — 환경변수를 주면 아래의 자동 판정을 건너뛴다.</li>
+<li><strong>자동 판정</strong> — 플랫폼 요건과 미지원 기능을 차례로 확인한다. 기본은 V2이고, V1은 폴백 경로다.</li>
+</ul>
+<h3 id="v1--v2-지원-범위">V1 / V2 지원 범위</h3>
+<p>걸리는 조건이 길어서 <a href="/vllm/">인덱스 페이지</a>에 목록으로 정리해두었다. 여기서 중요한 건 <strong>걸렸을 때의
+동작이 방향에 따라 다르다</strong>는 점이다.</p>
+<ul>
+<li>V2가 못 하는 기능이면 → 조용히 <strong>V1로 폴백</strong>한다.</li>
+<li>V1이 못 하는 기능이면 → <strong><code>ValueError</code>로 죽는다.</strong></li>
+</ul>
+<p><code>vllm/config/vllm.py</code>의 서로 다른 두 함수라서 그렇다. 폴백 쪽은 에러가 안 나니까 성능이 예상과 다를 때
+러너가 바뀌어 있는 걸 나중에야 알게 되는 경우가 있다.</p>
+<h2 id="8-정리">8. 정리</h2>
+<p>처음 볼 때 순서를 추천하자면:</p>
+<ol>
+<li><strong>1절 개요</strong>로 프로세스 경계를 잡는다. 어디서 ZMQ를 타고 어디서 브로드캐스트인지.</li>
+<li>처리량이 문제면 <strong>3절 스케줄러</strong>. 토큰 예산 배분과 선점 분기가 대부분의 답을 갖고 있다.</li>
+<li>지연이 문제면 <strong>5·6절 그래프 모드</strong>. 기동 시 정해지는 것과 매 스텝 정해지는 것을 구분한다.</li>
+<li>기동이 느리면 <strong>2절</strong>. <code>profile_run()</code>과 그래프 캡처 구간이다.</li>
+</ol>
+<p>각 절의 다이어그램은 전체 화면으로 열면 검색 · 포커스 · 내보내기가 된다.</p>
+<hr>
+<p><strong>근거 코드</strong>: <code>vllm/v1/engine/</code>, <code>vllm/v1/core/sched/scheduler.py</code>,
+<code>vllm/v1/executor/multiproc_executor.py</code>, <code>vllm/v1/worker/gpu_model_runner.py</code>,
+<code>vllm/v1/cudagraph_dispatcher.py</code>, <code>vllm/v1/spec_decode/</code>,
+<code>vllm/config/vllm.py</code>, <code>vllm/config/compilation.py</code>, <code>vllm/compilation/backends.py</code></p>
+
+</article>
+
+
+    <script src="https://utteranc.es/client.js"
+        repo="elwhyjay/blog-comment"
+        issue-term="title"
+        label="✨💬✨"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+            </div>
+        </main>
+        <script>
+            
+            function getEffectiveTheme(theme) {
+              if (theme === 'auto') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+              return theme;
+            }
+
+            function updateIcons(effectiveTheme) {
+              const lightIcon = document.querySelector('.light-icon');
+              const darkIcon = document.querySelector('.dark-icon');
+              lightIcon.style.display = effectiveTheme === 'dark' ? 'none' : 'inline';
+              darkIcon.style.display = effectiveTheme === 'dark' ? 'inline' : 'none';
+            }
+
+            function toggleTheme() {
+              const body = document.querySelector('body');
+              const currentTheme = body.getAttribute('a');
+              const effective = getEffectiveTheme(currentTheme);
+              const newTheme = effective === 'dark' ? 'light' : 'dark';
+
+              body.setAttribute('a', newTheme);
+              localStorage.setItem('theme', newTheme);
+              updateIcons(newTheme);
+            }
+
+            
+            document.addEventListener('DOMContentLoaded', () => {
+              const savedTheme = localStorage.getItem('theme');
+              if (savedTheme) {
+                document.querySelector('body').setAttribute('a', savedTheme);
+                updateIcons(savedTheme);
+              } else {
+                
+                updateIcons(getEffectiveTheme('auto'));
+              }
+            });
+        </script>
+    </body>
+</html>

@@ -6,8 +6,15 @@
     <description>Recent content on YongJun&#39;s blog</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
-    <lastBuildDate>Tue, 21 Apr 2026 14:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Mon, 14 Sep 2026 17:00:00 +0900</lastBuildDate>
     <atom:link href="https://elwhyjay.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>vLLM 톺아보기</title>
+      <link>https://elwhyjay.github.io/post/vllm_deep_dive/</link>
+      <pubDate>Mon, 14 Sep 2026 17:00:00 +0900</pubDate>
+      <guid>https://elwhyjay.github.io/post/vllm_deep_dive/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;&#xA;vLLM V1 엔진은 프론트엔드 · 엔진 코어 · 워커의 세 프로세스로 쪼개져 있고, 요청 하나가 토큰으로&#xA;나오기까지 그 경계를 여러 번 넘나든다. 이 글은 그 경로를 개요 한 장과 상세 여섯 장의 다이어그램으로&#xA;따라가면서, 스케줄러가 한 스텝에서 무엇을 결정하는지 · CUDA Graph가 언제 붙고 언제 떨어지는지 ·&#xA;어느 모델 러너가 선택되는지를 정리한다.&lt;/p&gt;&#xA;&lt;p&gt;본 글은 vLLM 커밋 &lt;code&gt;dc36fcc&lt;/code&gt; 기준이다. 다이어그램은 각각 단독 페이지로도 열 수 있으며, 전체 목록은&#xA;&lt;a href=&#34;https://elwhyjay.github.io/vllm/&#34;&gt;vLLM 엔진 다이어그램&lt;/a&gt;에 모아두었다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>torch.compile 탐구생활</title>
       <link>https://elwhyjay.github.io/post/torch_compile_deep_dive/</link>
